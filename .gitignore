@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+
+# Ambientes virtuais
+venv/
+env/
+.venv/
+
+# Configurações de editor/IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Arquivos temporários e logs
+*.log
+*.tmp
+*.bak
+
+# Banco de dados e exportações locais
+*.sqlite3
+*.db
+*.xls
+*.xlsx
+*.csv
+
+# Arquivos ocultos e backups
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+~$*
+
+# Arquivos de ambiente e chaves
+.env
+
+# Pasta de upload (se houver)
+uploads/
+media/
+
+# Power BI temporários
+*.pbix
+*.pbix~*
+
+# PyInstaller
+dist/
+build/
+*.spec
