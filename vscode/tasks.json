@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "🚀 Iniciar servidor Flask",
+        "type": "shell",
+        "command": "flask run",
+        "options": {
+          "env": {
+            "FLASK_APP": "app.py",
+            "FLASK_ENV": "development"
+          }
+        },
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "📦 Exportar processos para Excel",
+        "type": "shell",
+        "command": "python scripts/export_excel.py",
+        "problemMatcher": []
+      },
+      {
+        "label": "🛠️ Criar tabelas no MySQL",
+        "type": "shell",
+        "command": "python scripts/criar_tabelas.py",
+        "problemMatcher": []
+      }
+    ]
+  }
+  
