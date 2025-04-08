@@ -1,0 +1,102 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Fonte e cores padrão */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container central (card branco) */
+.card {
+    background-color: #fff;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+}
+
+/* Título */
+.card h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+/* Texto secundário */
+.card p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    color: #555;
+}
+
+/* Botões padrão */
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Formulários */
+.form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+/* Responsivo */
+@media (max-width: 500px) {
+    .card {
+        padding: 1.5rem;
+    }
+
+    .card h1 {
+        font-size: 1.25rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        padding: 0.8rem;
+    }
+}
+/* Estilo para o link de redirecionamento */
+.link {
+    display: inline-block;
+    margin-top: 0.3rem;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
