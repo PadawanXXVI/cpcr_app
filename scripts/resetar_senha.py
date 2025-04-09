@@ -1,7 +1,12 @@
-from scripts.utils import gerar_senha_provisoria
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from utils import gerar_senha_provisoria
+
 from werkzeug.security import generate_password_hash
 import mysql.connector
-from config import DevelopmentConfig
+from configuracoes import DevelopmentConfig
 
 # Conectar ao banco de dados
 conn = mysql.connector.connect(

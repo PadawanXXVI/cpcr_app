@@ -15,3 +15,5 @@ CREATE TABLE usuarios (
     senha_provisoria BOOLEAN DEFAULT FALSE,
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+

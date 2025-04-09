@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Trocar Senha - Sistema CPCR</title>
+  <title>Redefinir Senha - Sistema CPCR</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
   <div class="card">
-    <h2>Trocar Senha</h2>
-    <p>Você está usando uma senha provisória. Defina uma nova senha para continuar utilizando o sistema.</p>
+    <h2>Redefinir Senha</h2>
+    <p>Digite sua nova senha abaixo. Esse link expira em 1 hora por segurança.</p>
 
     {% if mensagem %}
       <div class="alert">{{ mensagem }}</div>
@@ -26,7 +26,7 @@
     </form>
 
     <p class="link-secundario">
-      <a href="{{ url_for('logout') }}">Sair</a>
+      <a href="{{ url_for('login') }}">← Voltar ao login</a>
     </p>
   </div>
 </body>

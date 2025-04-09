@@ -3,33 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | CPCR</title>
-  <meta name="description" content="Acesso ao sistema de controle de processos da CPCR - Novacap.">
+  <title>Login - Sistema CPCR</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
   <div class="card">
-    <h1>Acessar Sistema</h1>
-    <p>Informe seu nome de usuário e senha para entrar.</p>
+    <h2>Login no Sistema CPCR</h2>
 
     <form method="POST" action="{{ url_for('login') }}">
-      <div class="form-group">
-        <label for="usuario">Nome de usuário</label>
-        <input type="text" id="usuario" name="usuario" placeholder="nome.sobrenome" required>
-      </div>
+      <label for="usuario">Nome de Usuário:</label>
+      <input type="text" id="usuario" name="usuario" required />
 
-      <div class="form-group">
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" name="senha" required>
-      </div>
+      <label for="senha">Senha:</label>
+      <input type="password" id="senha" name="senha" required />
 
-      <button type="submit" class="btn-primary">Acessar</button>
+      <button type="submit" class="btn-primary">Entrar</button>
     </form>
 
-    <div style="margin-top: 1.5rem;">
-      <a href="{{ url_for('cadastrar_usuario') }}" class="btn-secondary" role="button" aria-label="Criar novo usuário">Cadastrar novo usuário</a><br><br>
-      <a href="{{ url_for('recuperar_acesso') }}" class="btn-secondary" role="button" aria-label="Recuperar acesso ao sistema">Recuperar acesso</a>
-    </div>
+    <p class="link-secundario">
+      <a href="{{ url_for('recuperar_acesso') }}">Esqueci minha senha</a>
+    </p>
+    <p class="link-secundario">
+      <a href="{{ url_for('cadastrar_usuario') }}">Criar uma conta</a>
+    </p>
   </div>
 </body>
 </html>

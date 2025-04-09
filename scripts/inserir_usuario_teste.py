@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash
 import mysql.connector
-from config import DevelopmentConfig
+from configuracoes import DevelopmentConfig
 
 # Conexão com o banco
 conn = mysql.connector.connect(

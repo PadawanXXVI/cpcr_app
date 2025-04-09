@@ -3,46 +3,68 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-/* Fonte e cores padrão */
-body {
+  }
+  
+  /* Corpo com fundo cinza claro e centralização vertical/horizontal */
+  body {
     font-family: 'Segoe UI', sans-serif;
     background-color: #f5f5f5;
-    color: #333;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-/* Container central (card branco) */
-.card {
+    color: #333;
+  }
+  
+  /* Cartão central (branco, sombra suave, arredondado) */
+  .card {
     background-color: #fff;
     padding: 2rem 3rem;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 500px;
+    max-width: 450px;
     width: 90%;
-}
-
-/* Título */
-.card h1 {
+    text-align: center;
+  }
+  
+  /* Títulos */
+  .card h1,
+  .card h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 0.8rem;
-}
-
-/* Texto secundário */
-.card p {
+    margin-bottom: 1rem;
+  }
+  
+  /* Parágrafos explicativos */
+  .card p {
     font-size: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
     color: #555;
-}
-
-/* Botões padrão */
-.btn-primary {
+  }
+  
+  /* Inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Labels */
+  label {
+    display: block;
+    text-align: left;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    color: #444;
+  }
+  
+  /* Botões principais */
+  .btn-primary {
     background-color: #007bff;
     color: white;
     padding: 0.6rem 1.2rem;
@@ -51,84 +73,73 @@ body {
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-}
-
-/* Formulários */
-.form-group {
-    margin-bottom: 1rem;
-    text-align: left;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
     width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-}
-
-/* Responsivo */
-@media (max-width: 500px) {
-    .card {
-        padding: 1.5rem;
-    }
-
-    .card h1 {
-        font-size: 1.25rem;
-    }
-
-    .btn-primary {
-        width: 100%;
-        padding: 0.8rem;
-    }
-}
-/* Estilo para o link de redirecionamento */
-.link {
-    display: inline-block;
-    margin-top: 0.3rem;
-    color: #007bff;
-    text-decoration: none;
-    font-size: 0.95rem;
-}
-
-.link:hover {
-    text-decoration: underline;
-}
-
-.form-info {
-    font-size: 0.85rem;
-    color: #666;
-    display: block;
-    margin-top: 0.3rem;
+    margin-top: 0.5rem;
   }
   
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Botões secundários (voltar, sair, etc.) */
   .btn-secondary {
-    background-color: #e0e0e0;
-    color: #333;
+    background-color: #6c757d;
+    color: white;
     padding: 0.6rem 1.2rem;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-}
-
-.btn-secondary:hover {
-    background-color: #c0c0c0;
-}
-
-.alert {
-    background-color: #d4edda;
-    color: #155724;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+  
+  /* Mensagem de alerta */
+  .alert {
+    background-color: #ffe4e4;
+    color: #a33;
     padding: 0.8rem;
-    border: 1px solid #c3e6cb;
+    border: 1px solid #ff9999;
     border-radius: 6px;
     margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  /* Links secundários */
+  .link-secundario {
+    margin-top: 1rem;
     font-size: 0.95rem;
-}
+  }
+  
+  .link-secundario a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .link-secundario a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsivo */
+  @media (max-width: 500px) {
+    .card {
+      padding: 1.5rem;
+    }
+  
+    .card h1,
+    .card h2 {
+      font-size: 1.25rem;
+    }
+  
+    .btn-primary,
+    .btn-secondary {
+      font-size: 1rem;
+      width: 100%;
+    }
+  }
+  
