@@ -1,9 +1,15 @@
+# scripts/resetar_senha.py
+
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from configuracoes import DevelopmentConfig
-import mysql.connector
 from utils import gerar_senha_provisoria
+import mysql.connector
 from werkzeug.security import generate_password_hash
 
-# Conectar ao banco
+# Conectar ao banco de dados
 conn = mysql.connector.connect(
     host=DevelopmentConfig.MYSQL_HOST,
     user=DevelopmentConfig.MYSQL_USER,
@@ -12,28 +18,20 @@ conn = mysql.connector.connect(
 )
 cursor = conn.cursor(dictionary=True)
 
-# Listar usuários
-cursor.execute("SELECT id_usuario, usuario FROM usuarios")
-usuarios = cursor.fetchall()
+id_usuario = input("Digite o ID do usuário para redefinir a senha: ")
 
-print("\nUsuários cadastrados:\n")
-for u in usuarios:
-    print(f"{u['id_usuario']}: {u['usuario']}")
-
-usuario_id = input("\nInforme o ID do usuário para gerar nova senha provisória: ")
-
-# Gerar e aplicar senha provisória
 nova_senha = gerar_senha_provisoria()
 senha_hash = generate_password_hash(nova_senha)
 
 cursor.execute("""
-    UPDATE usuarios SET senha_hash = %s, senha_provisoria = TRUE
+    UPDATE usuarios
+    SET senha_hash = %s, senha_provisoria = TRUE
     WHERE id_usuario = %s
-""", (senha_hash, usuario_id))
+""", (senha_hash, id_usuario))
 conn.commit()
 
-print(f"\n==============================")
-print(f"Senha provisória gerada para o usuário ID {usuario_id}:")
-print(f"\n🔐 {nova_senha}")
-print(f"\nInforme esta senha ao usuário e oriente a trocar no primeiro acesso.")
-print(f"==============================")
+print("="*50)
+print(f"Senha provisória gerada para o usuário ID {id_usuario}:")
+print(f">>> {nova_senha}")
+print("Informe esta senha ao usuário e oriente a trocar no primeiro acesso.")
+print("="*50)
