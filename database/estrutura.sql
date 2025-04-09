@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS cpcr;
 USE cpcr;
 
 -- Cria a tabela de usuários
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     usuario VARCHAR(100) NOT NULL UNIQUE,
