@@ -1,44 +1,39 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from utils import gerar_senha_provisoria
-
-from werkzeug.security import generate_password_hash
-import mysql.connector
 from configuracoes import DevelopmentConfig
+import mysql.connector
+from utils import gerar_senha_provisoria
+from werkzeug.security import generate_password_hash
 
-# Conectar ao banco de dados
+# Conectar ao banco
 conn = mysql.connector.connect(
     host=DevelopmentConfig.MYSQL_HOST,
     user=DevelopmentConfig.MYSQL_USER,
     password=DevelopmentConfig.MYSQL_PASSWORD,
     database=DevelopmentConfig.MYSQL_DATABASE
 )
-cursor = conn.cursor()
+cursor = conn.cursor(dictionary=True)
 
-# ID do usuário a redefinir (altere este valor conforme o usuário)
-id_usuario = 1  # ← Substitua pelo ID real do usuário
+# Listar usuários
+cursor.execute("SELECT id_usuario, usuario FROM usuarios")
+usuarios = cursor.fetchall()
 
-# Gerar senha provisória e hash
-senha_provisoria = gerar_senha_provisoria()
-senha_hash = generate_password_hash(senha_provisoria)
+print("\nUsuários cadastrados:\n")
+for u in usuarios:
+    print(f"{u['id_usuario']}: {u['usuario']}")
 
-# Atualizar no banco
+usuario_id = input("\nInforme o ID do usuário para gerar nova senha provisória: ")
+
+# Gerar e aplicar senha provisória
+nova_senha = gerar_senha_provisoria()
+senha_hash = generate_password_hash(nova_senha)
+
 cursor.execute("""
-    UPDATE usuarios
-    SET senha_hash = %s, senha_provisoria = TRUE
+    UPDATE usuarios SET senha_hash = %s, senha_provisoria = TRUE
     WHERE id_usuario = %s
-""", (senha_hash, id_usuario))
+""", (senha_hash, usuario_id))
 conn.commit()
 
-# Encerrar conexão
-cursor.close()
-conn.close()
-
-# Mostrar senha gerada
-print("=" * 50)
-print(f"Senha provisória gerada para o usuário ID {id_usuario}:")
-print(f"🔐 {senha_provisoria}")
-print("Informe esta senha ao usuário e oriente a trocar no primeiro acesso.")
-print("=" * 50)
+print(f"\n==============================")
+print(f"Senha provisória gerada para o usuário ID {usuario_id}:")
+print(f"\n🔐 {nova_senha}")
+print(f"\nInforme esta senha ao usuário e oriente a trocar no primeiro acesso.")
+print(f"==============================")

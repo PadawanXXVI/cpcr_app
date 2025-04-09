@@ -38,16 +38,26 @@ def login():
     if request.method == 'POST':
         usuario = request.form['usuario']
         senha = request.form['senha']
+        
         cursor.execute("SELECT * FROM usuarios WHERE usuario=%s", (usuario,))
         user = cursor.fetchone()
+
         if user and check_password_hash(user['senha_hash'], senha):
             if not user.get('aprovado', True):
                 return "Usuário ainda não aprovado pelo administrador."
+
             session['usuario'] = user['usuario']
             session['id_usuario'] = user['id_usuario']
-            return redirect(url_for('index'))
+
+            # Verifica se é senha provisória
+            if user.get('senha_provisoria', False):
+                return redirect(url_for('trocar_senha'))
+
+            return redirect(url_for('cadastro'))
+
         else:
             return "Usuário ou senha incorretos"
+
     return render_template('login.html')
 
 @app.route('/logout')
