@@ -3,6 +3,7 @@ import mysql.connector
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import DevelopmentConfig
+from functools import wraps
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -16,9 +17,23 @@ conn = mysql.connector.connect(
 )
 cursor = conn.cursor(dictionary=True)
 
+# Decorador para bloquear acesso com senha provisória
+def verificar_senha_provisoria(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'id_usuario' in session:
+            cursor.execute("SELECT senha_provisoria FROM usuarios WHERE id_usuario = %s", (session['id_usuario'],))
+            resultado = cursor.fetchone()
+            if resultado and resultado['senha_provisoria']:
+                return redirect(url_for('trocar_senha'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -30,15 +45,21 @@ def login():
         if user and check_password_hash(user['senha_hash'], senha):
             session['usuario'] = user['usuario']
             session['id_usuario'] = user['id_usuario']
+
+            if user.get('senha_provisoria'):
+                return redirect(url_for('trocar_senha'))
+
             return redirect(url_for('cadastro'))
         else:
             return "Usuário ou senha incorretos"
     return render_template('login.html')
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
 
 @app.route('/cadastrar_usuario', methods=['GET', 'POST'])
 def cadastrar_usuario():
@@ -67,7 +88,9 @@ def cadastrar_usuario():
 
     return render_template('cadastro_usuario.html')
 
+
 @app.route('/cadastro', methods=['GET', 'POST'])
+@verificar_senha_provisoria
 def cadastro():
     if 'usuario' not in session:
         return redirect(url_for('login'))
@@ -94,7 +117,9 @@ def cadastro():
         return redirect(url_for('cadastro'))
     return render_template('cadastro.html')
 
+
 @app.route('/atualizar', methods=['GET', 'POST'])
+@verificar_senha_provisoria
 def atualizar():
     if 'usuario' not in session:
         return redirect(url_for('login'))
@@ -127,7 +152,9 @@ def atualizar():
 
     return render_template('atualizacao.html')
 
+
 @app.route('/visualizacao')
+@verificar_senha_provisoria
 def visualizacao():
     if 'usuario' not in session:
         return redirect(url_for('login'))
@@ -137,7 +164,9 @@ def visualizacao():
     processos = cursor.fetchall()
     return render_template('visualizacao.html', processos=processos)
 
+
 @app.route('/detalhes/<numero_processo>')
+@verificar_senha_provisoria
 def detalhes_processo(numero_processo):
     if 'usuario' not in session:
         return redirect(url_for('login'))
@@ -156,6 +185,55 @@ def detalhes_processo(numero_processo):
     movimentacoes = cursor.fetchall()
 
     return render_template('detalhes_processo.html', processo=processo, movimentacoes=movimentacoes)
+
+
+@app.route('/recuperar_acesso', methods=['GET', 'POST'])
+def recuperar_acesso():
+    if request.method == 'POST':
+        email = request.form['email']
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        usuario = cursor.fetchone()
+
+        if usuario:
+            print(f"[INFO] Solicitação de recuperação enviada por: {email}")
+
+        mensagem = "Se o e-mail informado estiver cadastrado, você receberá instruções para redefinir sua senha."
+        return render_template('recuperacao.html', mensagem=mensagem)
+
+    return render_template('recuperacao.html')
+
+
+@app.route('/trocar_senha', methods=['GET', 'POST'])
+def trocar_senha():
+    if 'id_usuario' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        nova_senha = request.form['nova_senha']
+        confirmar_senha = request.form['confirmar_senha']
+
+        if nova_senha != confirmar_senha:
+            mensagem = "As senhas não coincidem. Tente novamente."
+            return render_template('trocar_senha.html', mensagem=mensagem)
+
+        nova_senha_hash = generate_password_hash(nova_senha)
+        id_usuario = session['id_usuario']
+
+        cursor.execute("""
+            UPDATE usuarios
+            SET senha_hash = %s, senha_provisoria = FALSE
+            WHERE id_usuario = %s
+        """, (nova_senha_hash, id_usuario))
+        conn.commit()
+
+        cursor.execute("SELECT * FROM usuarios WHERE id_usuario = %s", (id_usuario,))
+        user = cursor.fetchone()
+        session['usuario'] = user['usuario']
+
+        return redirect(url_for('cadastro'))
+
+    return render_template('trocar_senha.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

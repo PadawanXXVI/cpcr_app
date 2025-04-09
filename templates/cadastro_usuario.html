@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastrar Usuário - CPCR</title>
+  <meta name="description" content="Formulário para solicitação de acesso ao sistema CPCR da Novacap.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <div class="card">
+    <h1>Cadastrar Novo Usuário</h1>
+    <p>Preencha os campos abaixo para solicitar acesso ao sistema.</p>
+
+    <form method="POST" action="{{ url_for('cadastrar_usuario') }}">
+      <div class="form-group">
+        <label for="nome_completo">Nome completo</label>
+        <input type="text" id="nome_completo" name="nome_completo" required>
+      </div>
+
+      <div class="form-group">
+        <label for="nome_usuario">Nome de usuário</label>
+        <input type="text" id="nome_usuario" name="nome_usuario" placeholder="nome.sobrenome" required>
+        <small class="form-info">Use o padrão <strong>nome.sobrenome</strong>. Este será seu identificador no sistema.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="numero_celular">Número de celular (opcional)</label>
+        <input type="text" id="numero_celular" name="numero_celular">
+      </div>
+
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required>
+      </div>
+
+      <button type="submit" class="btn-primary">Cadastrar</button>
+    </form>
+
+    <div style="margin-top: 1.5rem;">
+      <a href="{{ url_for('login') }}" class="btn-secondary" role="button" aria-label="Voltar para tela de login">← Voltar</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Processos CRC</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Processos CPCR</title>
+  <meta name="description" content="Sistema interno da Novacap para controle de processos administrativos da CPCR.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <div class="card">
-        <h1>Bem-vindo ao Controle de Processos<br>CPCR</h1>
-        <p>Este é o sistema interno da Novacap para gerenciamento de processos.</p>
-        <a href="{{ url_for('login') }}">
-            <button class="btn-primary">Acessar Sistema</button>
-        </a>
-    </div>
+  <div class="card">
+    <h1>Bem-vindo ao Controle de Processos<br>CPCR</h1>
+    <p>Este é o sistema interno da Novacap para gerenciamento de processos.</p>
+
+    <a href="{{ url_for('login') }}" class="btn-primary" role="button" aria-label="Acessar o sistema">Acessar Sistema</a>
+  </div>
 </body>
 </html>

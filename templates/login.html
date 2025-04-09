@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | CPCR</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | CPCR</title>
+  <meta name="description" content="Acesso ao sistema de controle de processos da CPCR - Novacap.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <div class="card">
-        <h1>Acessar Sistema</h1>
-        <p>Informe seu nome de usuário e senha para entrar</p>
+  <div class="card">
+    <h1>Acessar Sistema</h1>
+    <p>Informe seu nome de usuário e senha para entrar.</p>
 
-        <form method="POST" action="{{ url_for('login') }}">
-            <div class="form-group">
-                <label for="usuario">Nome de usuário</label>
-                <input type="text" id="usuario" name="usuario" placeholder="nome.sobrenome" required>
-            </div>
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label for="usuario">Nome de usuário</label>
+        <input type="text" id="usuario" name="usuario" placeholder="nome.sobrenome" required>
+      </div>
 
-            <div class="form-group">
-                <label for="senha">Senha</label>
-                <input type="password" id="senha" name="senha" required>
-            </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required>
+      </div>
 
-            <button type="submit" class="btn-primary">Acessar</button>
-        </form>
+      <button type="submit" class="btn-primary">Acessar</button>
+    </form>
 
-        <div style="margin-top: 1rem;">
-            <a href="{{ url_for('cadastrar_usuario') }}" class="link">Cadastrar novo usuário</a><br>
-            <a href="{{ url_for('recuperar_acesso') }}" class="link">Recuperar acesso</a>
-        </div>
+    <div style="margin-top: 1.5rem;">
+      <a href="{{ url_for('cadastrar_usuario') }}" class="btn-secondary" role="button" aria-label="Criar novo usuário">Cadastrar novo usuário</a><br><br>
+      <a href="{{ url_for('recuperar_acesso') }}" class="btn-secondary" role="button" aria-label="Recuperar acesso ao sistema">Recuperar acesso</a>
     </div>
+  </div>
 </body>
 </html>
