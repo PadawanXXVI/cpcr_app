@@ -264,5 +264,71 @@ def atualizar_processo(id):
                            lista_diretorias=lista_diretorias,
                            historico=historico)
 
+@app.route('/visualizacao')
+@verificar_senha_provisoria
+def visualizacao():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    # Filtros
+    numero = request.args.get('numero_processo', '')
+    ra = request.args.get('admin_regional', '')
+    demanda = request.args.get('tipo_demanda', '')
+    status = request.args.get('status_demanda', '')
+
+    # Query base
+    query = "SELECT * FROM processos WHERE 1=1"
+    params = []
+
+    if numero:
+        query += " AND numero_processo LIKE %s"
+        params.append(f"%{numero}%")
+    if ra:
+        query += " AND admin_regional = %s"
+        params.append(ra)
+    if demanda:
+        query += " AND tipo_demanda = %s"
+        params.append(demanda)
+    if status:
+        query += " AND status_demanda = %s"
+        params.append(status)
+
+    cursor.execute(query, tuple(params))
+    processos = cursor.fetchall()
+
+    # Reutilizamos listas para filtros (já usadas em cadastro_processo)
+    lista_ras = [
+        "RA I - Plano Piloto", "RA II - Gama", "RA III - Taguatinga", "RA IV - Brazlândia", "RA V - Sobradinho",
+        "RA VI - Planaltina", "RA VII - Paranoá", "RA VIII - Núcleo Bandeirante", "RA IX - Ceilândia", "RA X - Guará",
+        "RA XI - Cruzeiro", "RA XII - Samambaia", "RA XIII - Santa Maria", "RA XIV - São Sebastião", "RA XV - Recanto das Emas",
+        "RA XVI - Lago Sul", "RA XVII - Riacho Fundo", "RA XVIII - Lago Norte", "RA XIX - Candangolândia", "RA XX - Águas Claras",
+        "RA XXI - Riacho Fundo II", "RA XXII - Sudoeste/Octogonal", "RA XXIII - Varjão", "RA XXIV - Park Way",
+        "RA XXV - SCIA/Estrutural", "RA XXVI - Sobradinho II", "RA XXVII - Jardim Botânico", "RA XXVIII - Itapoã",
+        "RA XXIX - SIA", "RA XXX - Vicente Pires", "RA XXXI - Fercal", "RA XXXII - Sol Nascente e Pôr do Sol",
+        "RA XXXIII - Arniqueira", "RA XXXIV - Arapoanga", "RA XXXV - Água Quente"
+    ]
+
+    lista_demandas = [
+        "Tapa-buraco", "Boca de Lobo", "Bueiro", "Calçada", "Estacionamentos",
+        "Galeria de Águas Pluviais", "Jardim", "Mato Alto", "Meio-fio", "Parque Infantil",
+        "Passagem Subterrânea", "Passarela", "Pisos Articulados", "Pista de Skate",
+        "Ponto de Encontro Comunitário (PEC)", "Praça", "Quadra de Esporte", "Rampa",
+        "Alambrado (Cercamento)", "Implantação (calçada, quadra, praça, estacionamento etc.)",
+        "Recapeamento Asfáltico", "Poda / supressão de árvore", "Doação de mudas"
+    ]
+
+    lista_status = [
+        "Em atendimento", "Atendido", "Enviado à Diretoria das Cidades",
+        "Enviado à Diretoria de Obras", "Devolvido à RA de origem",
+        "Improcedente - tramitação pelo SGIA", "Improcedente - necessita de orçamento próprio",
+        "Concluído"
+    ]
+
+    return render_template('visualizacao.html',
+                           processos=processos,
+                           lista_ras=lista_ras,
+                           lista_demandas=lista_demandas,
+                           lista_status=lista_status)
+
 if __name__ == '__main__':
     app.run(debug=True)
