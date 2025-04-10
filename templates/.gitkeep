@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro de Processo - CPCR</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script>
+    // Máscara para número de processo: 00000-00000000/0000-00
+    function aplicarMascara(input) {
+      let valor = input.value.replace(/\D/g, '');
+      if (valor.length > 0) valor = valor.padStart(21, '0');
+
+      valor = valor.replace(/^(\d{5})(\d{8})(\d{4})(\d{2}).*$/, '$1-$2/$3-$4');
+      input.value = valor;
+    }
+  </script>
+</head>
+
+<body>
+  <div class="card">
+    <h1>Cadastro de Processo</h1>
+    <p>Preencha os dados do processo recebido pela CPCR</p>
+
+    <!-- Painel de Totais (visual por enquanto) -->
+    <div class="painel-totais">
+      <p><strong>Totais:</strong></p>
+      <ul>
+        <li>Total geral: {{ totais.total_geral }}</li>
+        <li>Devolvidos à RA: {{ totais.devolvidos_ra }}</li>
+        <li>Improcedentes (SGIA): {{ totais.sgias }}</li>
+        <li>Improcedentes (Implantação): {{ totais.implantacoes }}</li>
+        <li>Enviados à DC: {{ totais.enviados_dc }}</li>
+        <li>Enviados à DO: {{ totais.enviados_do }}</li>
+        <li>Concluídos: {{ totais.concluidos }}</li>
+      </ul>
+    </div>
+
+    <form method="POST" action="{{ url_for('cadastro_processo') }}">
+      <div class="form-group">
+        <label for="numero_processo">Número do Processo</label>
+        <input type="text" id="numero_processo" name="numero_processo" required oninput="aplicarMascara(this)" placeholder="00000-00000000/0000-00">
+      </div>
+
+      <div class="form-group">
+        <label for="data_criacao_ra">Data de Criação na RA</label>
+        <input type="date" id="data_criacao_ra" name="data_criacao_ra" required>
+      </div>
+
+      <div class="form-group">
+        <label for="data_entrada_cpcr">Data de Entrada na CPCR</label>
+        <input type="date" id="data_entrada_cpcr" name="data_entrada_cpcr" required>
+      </div>
+
+      <div class="form-group">
+        <label for="admin_regional">Região Administrativa de Origem</label>
+        <select id="admin_regional" name="admin_regional" required>
+          <option value="">Selecione</option>
+          {% for ra in lista_ras %}
+            <option value="{{ ra }}">{{ ra }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tipo_demanda">Demanda (Serviço)</label>
+        <select id="tipo_demanda" name="tipo_demanda" required>
+          <option value="">Selecione</option>
+          {% for demanda in lista_demandas %}
+            <option value="{{ demanda }}">{{ demanda }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status_demanda">Status do Processo</label>
+        <select id="status_demanda" name="status_demanda" required>
+          <option value="">Selecione</option>
+          {% for status in lista_status %}
+            <option value="{{ status }}">{{ status }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="vistoria_completa">Possui Vistoria e Imagem Georreferenciada?</label>
+        <select id="vistoria_completa" name="vistoria_completa" required>
+          <option value="">Selecione</option>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="diretoria_destino">Diretoria Responsável</label>
+        <select id="diretoria_destino" name="diretoria_destino">
+          <option value="">Selecione</option>
+          <option value="DC">Diretoria das Cidades</option>
+          <option value="DO">Diretoria de Obras</option>
+          <option value="N/A">Não se aplica</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="descricao_processo">Observações / Descrição</label>
+        <textarea id="descricao_processo" name="descricao_processo" rows="3" placeholder="Observações adicionais..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary">Cadastrar Processo</button>
+    </form>
+  </div>
+</body>
+</html>
