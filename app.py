@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from configuracoes import DevelopmentConfig
-from utils import gerar_senha_provisoria, enviar_email, gerar_token_email, verificar_token_email
+from scripts.utils import gerar_senha_provisoria, enviar_email, gerar_token_email, verificar_token_email
 from functools import wraps
 
 app = Flask(__name__)

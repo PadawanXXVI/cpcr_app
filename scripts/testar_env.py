@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from configuracoes import DevelopmentConfig
-from utils import enviar_email
+from scripts.utils import enviar_email
 
 # Carrega as variáveis do .env
 load_dotenv()
