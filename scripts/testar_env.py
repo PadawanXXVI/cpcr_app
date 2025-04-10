@@ -1,25 +1,25 @@
-# testar_env.py
-
 import os
 from dotenv import load_dotenv
+from configuracoes import DevelopmentConfig
 from utils import enviar_email
 
-# Carrega as variáveis do .env (na raiz do projeto)
+# Carrega as variáveis do .env
 load_dotenv()
 
-# E-mail de destino (pode ser o próprio remetente para teste)
-destinatario = os.getenv("EMAIL_USER")
-assunto = "🔐 Teste de envio de e-mail - Sistema CPCR"
-mensagem = """
-<p><strong>Este é um teste automático do sistema CPCR.</strong></p>
-<p>Se você recebeu este e-mail, o envio via SMTP iCloud está funcionando corretamente.</p>
-<p>Atenciosamente,<br>Sistema CPCR</p>
-"""
+print("\n✅ Variáveis carregadas do .env:")
+print(f"EMAIL_HOST: {os.getenv('EMAIL_HOST')}")
+print(f"EMAIL_PORT: {os.getenv('EMAIL_PORT')}")
+print(f"EMAIL_USER: {os.getenv('EMAIL_USER')}")
+print(f"EMAIL_SENDER: {os.getenv('EMAIL_SENDER')}")
+print(f"EMAIL_PASSWORD: {'*' * len(os.getenv('EMAIL_PASSWORD', ''))}")  # Não exibe a senha
 
-# Envia o e-mail
-enviado = enviar_email(destinatario, assunto, mensagem)
-
-if enviado:
-    print("[✔] E-mail de teste enviado com sucesso!")
-else:
-    print("[✖] Erro ao enviar e-mail. Verifique o .env ou a senha do app.")
+# Testa envio de e-mail
+try:
+    enviar_email(
+        destinatario=os.getenv("EMAIL_USER"),
+        assunto="🧪 Teste de envio - Sistema CPCR",
+        mensagem="<p>Este é um teste de envio de e-mail automático pelo sistema CPCR da Novacap.</p>"
+    )
+    print("📧 E-mail de teste enviado com sucesso!")
+except Exception as e:
+    print(f"❌ Falha ao enviar e-mail: {e}")
