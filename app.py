@@ -100,29 +100,37 @@ def cadastrar_usuario():
 @app.route('/recuperar_acesso', methods=['GET', 'POST'])
 def recuperar_acesso():
     if request.method == 'POST':
-        email = request.form['email']
-        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        nome = request.form['nome_completo'].strip()
+        email = request.form['email'].strip()
+        nova_senha = request.form['nova_senha']
+        confirmar = request.form['confirmar_senha']
+
+        if nova_senha != confirmar:
+            mensagem = "As senhas não coincidem. Tente novamente."
+            return render_template("recuperacao.html", mensagem=mensagem)
+
+        # Verifica se existe usuário com nome + email
+        cursor.execute("""
+            SELECT * FROM usuarios WHERE nome = %s AND email = %s
+        """, (nome, email))
         usuario = cursor.fetchone()
 
-        if usuario:
-            token = gerar_token_email(usuario['email'])
-            link = f"http://127.0.0.1:5000/redefinir_senha/{token}"
+        if not usuario:
+            mensagem = "Usuário não encontrado com os dados informados."
+            return render_template("recuperacao.html", mensagem=mensagem)
 
-            corpo_email = f"""
-            <p>Olá {usuario['nome']},</p>
-            <p>Você solicitou uma redefinição de senha para acessar o sistema CPCR da Novacap.</p>
-            <p>Acesse o link abaixo para criar uma nova senha. Este link expira em 1 hora:</p>
-            <p><a href="{link}">{link}</a></p>
-            <p>Se você não solicitou esta redefinição, ignore este e-mail.</p>
-            <p>Atenciosamente,<br>Sistema CPCR - Novacap</p>
-            """
+        # Atualiza a senha
+        nova_hash = generate_password_hash(nova_senha)
+        cursor.execute("""
+            UPDATE usuarios
+            SET senha_hash = %s, senha_provisoria = FALSE
+            WHERE id_usuario = %s
+        """, (nova_hash, usuario['id_usuario']))
+        conn.commit()
 
-            enviar_email(usuario['email'], "Redefinição de Senha - Sistema CPCR", corpo_email)
+        return render_template("recuperacao.html", mensagem="Senha redefinida com sucesso. Você já pode fazer login.")
 
-        mensagem = "Se o e-mail informado estiver cadastrado, você receberá instruções para redefinir sua senha."
-        return render_template('recuperacao.html', mensagem=mensagem)
-
-    return render_template('recuperacao.html')
+    return render_template("recuperacao.html")
 
 @app.route('/redefinir_senha/<token>', methods=['GET', 'POST'])
 def redefinir_senha(token):

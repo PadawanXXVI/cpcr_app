@@ -1,25 +1,24 @@
 import os
+import sys
 from dotenv import load_dotenv
-from configuracoes import DevelopmentConfig
+
+# Garante acesso à pasta scripts e à raiz do projeto
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from scripts.utils import enviar_email
 
-# Carrega as variáveis do .env
 load_dotenv()
 
-print("\n✅ Variáveis carregadas do .env:")
-print(f"EMAIL_HOST: {os.getenv('EMAIL_HOST')}")
-print(f"EMAIL_PORT: {os.getenv('EMAIL_PORT')}")
-print(f"EMAIL_USER: {os.getenv('EMAIL_USER')}")
-print(f"EMAIL_SENDER: {os.getenv('EMAIL_SENDER')}")
-print(f"EMAIL_PASSWORD: {'*' * len(os.getenv('EMAIL_PASSWORD', ''))}")  # Não exibe a senha
+# Testa envio de e-mail com mensagem simples
+assunto = "✅ Teste de E-mail - Sistema CPCR"
+destinatario = os.getenv("EMAIL_TESTE") or os.getenv("EMAIL_USER")
+mensagem = """
+<p>Olá,</p>
+<p>Este é um teste automático do envio de e-mails pelo sistema <strong>CPCR</strong>.</p>
+<p>Se você recebeu este e-mail, está tudo funcionando corretamente! 🎉</p>
+"""
 
-# Testa envio de e-mail
-try:
-    enviar_email(
-        destinatario=os.getenv("EMAIL_USER"),
-        assunto="🧪 Teste de envio - Sistema CPCR",
-        mensagem="<p>Este é um teste de envio de e-mail automático pelo sistema CPCR da Novacap.</p>"
-    )
-    print("📧 E-mail de teste enviado com sucesso!")
-except Exception as e:
-    print(f"❌ Falha ao enviar e-mail: {e}")
+if enviar_email(destinatario, assunto, mensagem):
+    print("[✔] E-mail de teste enviado com sucesso!")
+else:
+    print("[✖] Falha no envio do e-mail.")
