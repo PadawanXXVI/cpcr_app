@@ -8,19 +8,18 @@
 <body>
     <div class="card">
         <h1>Cadastro de Processo</h1>
-        <form method="POST" action="{{ url_for('cadastro_processo') }}">
-            
+        <form method="post">
             <label for="numero_processo">Número do Processo:</label>
-            <input type="text" id="numero_processo" name="numero_processo" required>
+            <input type="text" name="numero_processo" required>
 
             <label for="data_criacao_ra">Data de Criação na RA:</label>
-            <input type="date" id="data_criacao_ra" name="data_criacao_ra" required>
+            <input type="date" name="data_criacao_ra" required>
 
             <label for="data_entrada_cpcr">Data de Entrada na CPCR:</label>
-            <input type="date" id="data_entrada_cpcr" name="data_entrada_cpcr" required>
+            <input type="date" name="data_entrada_cpcr" required>
 
             <label for="admin_regional">Região Administrativa:</label>
-            <select id="admin_regional" name="admin_regional" required>
+            <select name="admin_regional" required>
                 <option value="">Selecione</option>
                 {% for ra in lista_ras %}
                     <option value="{{ ra }}">{{ ra }}</option>
@@ -28,7 +27,7 @@
             </select>
 
             <label for="tipo_demanda">Demanda:</label>
-            <select id="tipo_demanda" name="tipo_demanda" required>
+            <select name="tipo_demanda" required>
                 <option value="">Selecione</option>
                 {% for demanda in lista_demandas %}
                     <option value="{{ demanda }}">{{ demanda }}</option>
@@ -36,7 +35,7 @@
             </select>
 
             <label for="status_demanda">Status:</label>
-            <select id="status_demanda" name="status_demanda" required>
+            <select name="status_demanda" required>
                 <option value="">Selecione</option>
                 {% for status in lista_status %}
                     <option value="{{ status }}">{{ status }}</option>
@@ -44,26 +43,28 @@
             </select>
 
             <label for="vistoria_completa">Possui Vistoria/Foto Georreferenciada?</label>
-            <select id="vistoria_completa" name="vistoria_completa" required>
+            <select name="vistoria_completa" required>
                 <option value="">Selecione</option>
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
             </select>
 
-            <label for="diretoria_destino">Diretoria de Destino:</label>
-            <select id="diretoria_destino" name="diretoria_destino" required>
+            <label for="diretoria_destino">Diretoria de Destino (DC/DO):</label>
+            <select name="diretoria_destino">
                 <option value="">Selecione</option>
                 <option value="DC">Diretoria das Cidades</option>
                 <option value="DO">Diretoria de Obras</option>
             </select>
 
             <label for="descricao_processo">Descrição do Processo:</label>
-            <input type="text" id="descricao_processo" name="descricao_processo">
+            <input type="text" name="descricao_processo">
 
             <button type="submit" class="btn-primary">Cadastrar</button>
         </form>
 
-        <a href="{{ url_for('logout') }}" class="btn-secondary">Sair</a>
+        <div class="link-secundario">
+            <a href="{{ url_for('logout') }}" class="btn-secondary">Sair</a>
+        </div>
     </div>
 </body>
 </html>
