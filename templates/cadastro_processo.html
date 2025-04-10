@@ -1,53 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Processo</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-    <script>
-        function validarFormulario(event) {
-            const numeroProcesso = document.getElementById('numero_processo').value.trim();
-            const dataCriacao = document.getElementById('data_criacao_ra').value;
-            const dataEntrada = document.getElementById('data_entrada_cpcr').value;
-            const hoje = new Date().toISOString().split('T')[0];
-
-            const regex = /^\d{5}-\d{8}\/\d{4}-\d{2}$/;
-            if (!regex.test(numeroProcesso)) {
-                alert("Número do processo inválido. Formato esperado: 00000-00000000/0000-00");
-                event.preventDefault();
-                return false;
-            }
-
-            if (!dataCriacao || !dataEntrada) {
-                alert("Por favor, preencha todas as datas obrigatórias.");
-                event.preventDefault();
-                return false;
-            }
-
-            if (dataEntrada > hoje) {
-                alert("A data de entrada na CPCR não pode ser futura.");
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
-        }
-
-        function aplicarMascara(input) {
-            let valor = input.value.replace(/\D/g, "");
-            if (valor.length >= 19) valor = valor.slice(0, 19);
-            valor = valor.replace(/(\d{5})(\d{8})(\d{4})(\d{2})/, "$1-$2/$3-$4");
-            input.value = valor;
-        }
-    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="card">
         <h1>Cadastro de Processo</h1>
-        <form method="POST" onsubmit="return validarFormulario(event)">
+        <form method="POST" action="{{ url_for('cadastro_processo') }}">
+            
             <label for="numero_processo">Número do Processo:</label>
-            <input type="text" id="numero_processo" name="numero_processo" maxlength="25" required oninput="aplicarMascara(this)">
+            <input type="text" id="numero_processo" name="numero_processo" required>
 
             <label for="data_criacao_ra">Data de Criação na RA:</label>
             <input type="date" id="data_criacao_ra" name="data_criacao_ra" required>
@@ -59,15 +23,15 @@
             <select id="admin_regional" name="admin_regional" required>
                 <option value="">Selecione</option>
                 {% for ra in lista_ras %}
-                <option value="{{ ra }}">{{ ra }}</option>
+                    <option value="{{ ra }}">{{ ra }}</option>
                 {% endfor %}
             </select>
 
             <label for="tipo_demanda">Demanda:</label>
             <select id="tipo_demanda" name="tipo_demanda" required>
                 <option value="">Selecione</option>
-                {% for d in lista_demandas %}
-                <option value="{{ d }}">{{ d }}</option>
+                {% for demanda in lista_demandas %}
+                    <option value="{{ demanda }}">{{ demanda }}</option>
                 {% endfor %}
             </select>
 
@@ -75,22 +39,31 @@
             <select id="status_demanda" name="status_demanda" required>
                 <option value="">Selecione</option>
                 {% for status in lista_status %}
-                <option value="{{ status }}">{{ status }}</option>
+                    <option value="{{ status }}">{{ status }}</option>
                 {% endfor %}
             </select>
 
-            <label for="vistoria_completa">Informações da Vistoria:</label>
-            <input type="text" id="vistoria_completa" name="vistoria_completa">
+            <label for="vistoria_completa">Possui Vistoria/Foto Georreferenciada?</label>
+            <select id="vistoria_completa" name="vistoria_completa" required>
+                <option value="">Selecione</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+            </select>
 
-            <label for="diretoria_destino">Diretoria de Destino (DC/DO):</label>
-            <input type="text" id="diretoria_destino" name="diretoria_destino">
+            <label for="diretoria_destino">Diretoria de Destino:</label>
+            <select id="diretoria_destino" name="diretoria_destino" required>
+                <option value="">Selecione</option>
+                <option value="DC">Diretoria das Cidades</option>
+                <option value="DO">Diretoria de Obras</option>
+            </select>
 
             <label for="descricao_processo">Descrição do Processo:</label>
             <input type="text" id="descricao_processo" name="descricao_processo">
 
-            <button class="btn-primary" type="submit">Cadastrar Processo</button>
-            <a href="/" class="btn-secondary">Início</a>
+            <button type="submit" class="btn-primary">Cadastrar</button>
         </form>
+
+        <a href="{{ url_for('logout') }}" class="btn-secondary">Sair</a>
     </div>
 </body>
 </html>

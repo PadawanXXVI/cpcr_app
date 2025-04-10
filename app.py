@@ -181,16 +181,21 @@ def trocar_senha():
 
 @app.route('/cadastro_processo', methods=['GET', 'POST'])
 @verificar_senha_provisoria
-@login_required
 def cadastro_processo():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
     if request.method == 'POST':
         numero = request.form['numero_processo']
+
+        # Verifica se já existe
         cursor.execute("SELECT id_processo FROM processos WHERE numero_processo = %s", (numero,))
         existente = cursor.fetchone()
 
         if existente:
             return redirect(url_for('atualizar_processo', id=existente['id_processo']))
 
+        # Coleta dados
         dados = (
             numero,
             request.form['data_criacao_ra'],
@@ -213,11 +218,43 @@ def cadastro_processo():
 
         return redirect(url_for('cadastro_processo'))
 
-    # Listas de apoio
-    lista_ras = [ ... ]  # mesmas RAs
-    lista_demandas = [ ... ]  # mesmas demandas
-    lista_status = [ ... ]  # mesmos status
-    totais = { ... }  # painel de totais (simulado)
+    # Dados para os selects
+    lista_ras = [
+        "RA I - Plano Piloto", "RA II - Gama", "RA III - Taguatinga", "RA IV - Brazlândia", "RA V - Sobradinho",
+        "RA VI - Planaltina", "RA VII - Paranoá", "RA VIII - Núcleo Bandeirante", "RA IX - Ceilândia", "RA X - Guará",
+        "RA XI - Cruzeiro", "RA XII - Samambaia", "RA XIII - Santa Maria", "RA XIV - São Sebastião", "RA XV - Recanto das Emas",
+        "RA XVI - Lago Sul", "RA XVII - Riacho Fundo", "RA XVIII - Lago Norte", "RA XIX - Candangolândia", "RA XX - Águas Claras",
+        "RA XXI - Riacho Fundo II", "RA XXII - Sudoeste/Octogonal", "RA XXIII - Varjão", "RA XXIV - Park Way",
+        "RA XXV - SCIA/Estrutural", "RA XXVI - Sobradinho II", "RA XXVII - Jardim Botânico", "RA XXVIII - Itapoã",
+        "RA XXIX - SIA", "RA XXX - Vicente Pires", "RA XXXI - Fercal", "RA XXXII - Sol Nascente e Pôr do Sol",
+        "RA XXXIII - Arniqueira", "RA XXXIV - Arapoanga", "RA XXXV - Água Quente"
+    ]
+
+    lista_demandas = [
+        "Tapa-buraco", "Boca de Lobo", "Bueiro", "Calçada", "Estacionamentos",
+        "Galeria de Águas Pluviais", "Jardim", "Mato Alto", "Meio-fio", "Parque Infantil",
+        "Passagem Subterrânea", "Passarela", "Pisos Articulados", "Pista de Skate",
+        "Ponto de Encontro Comunitário (PEC)", "Praça", "Quadra de Esporte", "Rampa",
+        "Alambrado (Cercamento)", "Implantação (calçada, quadra, praça, estacionamento etc.)",
+        "Recapeamento Asfáltico", "Poda / supressão de árvore", "Doação de mudas"
+    ]
+
+    lista_status = [
+        "Em atendimento", "Atendido", "Enviado à Diretoria das Cidades",
+        "Enviado à Diretoria de Obras", "Devolvido à RA de origem",
+        "Improcedente - tramitação pelo SGIA", "Improcedente - necessita de orçamento próprio",
+        "Concluído"
+    ]
+
+    totais = {
+        "total_geral": 0,
+        "devolvidos_ra": 0,
+        "sgias": 0,
+        "implantacoes": 0,
+        "enviados_dc": 0,
+        "enviados_do": 0,
+        "concluidos": 0
+    }
 
     return render_template("cadastro_processo.html",
                            lista_ras=lista_ras,
