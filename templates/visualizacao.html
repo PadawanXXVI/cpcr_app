@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualização de Processos</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+    }
+    th, td {
+      padding: 0.7rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    .filtros div {
+      flex: 1;
+      min-width: 180px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Consulta de Processos</h1>
+    <form method="GET" action="{{ url_for('visualizacao') }}">
+      <div class="filtros">
+        <div>
+          <label for="numero_processo">Número do Processo:</label>
+          <input type="text" name="numero_processo" id="numero_processo" placeholder="Digite parte do número..." value="{{ request.args.get('numero_processo', '') }}">
+        </div>
+
+        <div>
+          <label for="admin_regional">Região Administrativa:</label>
+          <select name="admin_regional" id="admin_regional">
+            <option value="">Todas</option>
+            {% for ra in lista_ras %}
+              <option value="{{ ra }}" {% if request.args.get('admin_regional') == ra %}selected{% endif %}>{{ ra }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="tipo_demanda">Demanda:</label>
+          <select name="tipo_demanda" id="tipo_demanda">
+            <option value="">Todas</option>
+            {% for d in lista_demandas %}
+              <option value="{{ d }}" {% if request.args.get('tipo_demanda') == d %}selected{% endif %}>{{ d }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label for="status_demanda">Status:</label>
+          <select name="status_demanda" id="status_demanda">
+            <option value="">Todos</option>
+            {% for s in lista_status %}
+              <option value="{{ s }}" {% if request.args.get('status_demanda') == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary" style="margin-top: 1rem">🔎 Buscar</button>
+    </form>
+
+    {% if processos %}
+    <table>
+      <thead>
+        <tr>
+          <th>Número</th>
+          <th>RA</th>
+          <th>Demanda</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in processos %}
+        <tr>
+          <td>{{ p.numero_processo }}</td>
+          <td>{{ p.admin_regional }}</td>
+          <td>{{ p.tipo_demanda }}</td>
+          <td>{{ p.status_demanda }}</td>
+          <td>
+            <a href="{{ url_for('atualizar_processo', id=p.id_processo) }}" class="btn-secondary">Atualizar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="margin-top: 1.5rem">Nenhum processo encontrado com os critérios informados.</p>
+    {% endif %}
+
+    <div class="botoes">
+      <a href="/cadastro_processo" class="btn-secondary">← Voltar</a>
+    </div>
+  </div>
+</body>
+</html>
