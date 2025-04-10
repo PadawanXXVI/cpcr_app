@@ -8,6 +8,7 @@ Este sistema web foi desenvolvido para a Comissão Permanente Central de Relacio
 - Controle de status e movimentações
 - Exportação de dados para Excel
 - Autenticação e gestão de usuários
+- Recuperação de senha com envio automático de e-mail
 - Integração com Power BI para dashboards
 - Registro de histórico de movimentações
 
@@ -29,12 +30,12 @@ cd cpcr_app
 
 # Criar ambiente virtual
 python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# venv\Scripts\activate  # Windows
+venv\Scripts\activate  # Windows
+# ou source venv/bin/activate  # Linux/macOS
 
 # Instalar dependências
 pip install -r requirements.txt
-```
+
 
 ## 💻 Execução
 
@@ -47,6 +48,20 @@ Acesse no navegador: http://localhost:5000
 ## 🔐 Segurança
 
 As variáveis sensíveis estão centralizadas no arquivo `.env` (NÃO versionado). Use o modelo de configuração disponível.
+
+## 📬 Envio de e-mails (recuperação de senha)
+O sistema envia automaticamente e-mails de redefinição de senha. É necessário configurar um provedor SMTP válido.
+
+
+✅ Exemplo com Apple iCloud:
+```bash
+EMAIL_HOST=smtp.mail.me.com
+EMAIL_PORT=587
+EMAIL_USER=seu_usuario@icloud.com
+EMAIL_PASSWORD=sua_senha_de_app_gerada_no_site_da_apple
+```
+
+Gere a senha de app acessando https://appleid.apple.com
 
 ## 📄 Licença
 
