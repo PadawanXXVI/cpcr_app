@@ -4,22 +4,22 @@ import os
 from dotenv import load_dotenv
 from utils import enviar_email
 
-# Carregar variáveis do .env
+# Carrega as variáveis do .env (na raiz do projeto)
 load_dotenv()
 
-# Dados do teste
-destinatario = os.getenv("EMAIL_USER")  # ou substitua por qualquer e-mail para teste
-assunto = "Teste de envio de e-mail - Sistema CPCR"
+# E-mail de destino (pode ser o próprio remetente para teste)
+destinatario = os.getenv("EMAIL_USER")
+assunto = "🔐 Teste de envio de e-mail - Sistema CPCR"
 mensagem = """
 <p><strong>Este é um teste automático do sistema CPCR.</strong></p>
-<p>Se você recebeu este e-mail, a configuração está correta.</p>
+<p>Se você recebeu este e-mail, o envio via SMTP iCloud está funcionando corretamente.</p>
 <p>Atenciosamente,<br>Sistema CPCR</p>
 """
 
-# Enviar o e-mail
-resultado = enviar_email(destinatario, assunto, mensagem)
+# Envia o e-mail
+enviado = enviar_email(destinatario, assunto, mensagem)
 
-if resultado:
-    print("[OK] E-mail de teste enviado com sucesso!")
+if enviado:
+    print("[✔] E-mail de teste enviado com sucesso!")
 else:
-    print("[ERRO] Falha ao enviar o e-mail.")
+    print("[✖] Erro ao enviar e-mail. Verifique o .env ou a senha do app.")
