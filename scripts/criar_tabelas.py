@@ -30,6 +30,22 @@ CREATE TABLE IF NOT EXISTS processos (
 ''')
 
 print("✅ Tabela 'processos' criada com sucesso.")
+
+# Criação da tabela 'movimentacoes'
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS movimentacoes (
+        id_movimentacao INT PRIMARY KEY AUTO_INCREMENT,
+        id_processo INT NOT NULL,
+        id_usuario INT NOT NULL,
+        data_movimentacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        status_movimentado VARCHAR(100) NOT NULL,
+        observacoes TEXT,
+        FOREIGN KEY (id_processo) REFERENCES processos(id_processo),
+        FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    )
+""")
+print("[✔] Tabela 'movimentacoes' criada ou já existente.")
+
 conn.commit()
 cursor.close()
 conn.close()
