@@ -1,85 +1,72 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Atualização de Processo - CPCR</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Processo</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script>
+        function validarAtualizacao(event) {
+            const status = document.getElementById("status_demanda").value;
+            if (!status) {
+                alert("Selecione um novo status para o processo.");
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body>
-  <div class="card">
-    <h1>Atualizar Processo</h1>
-    <p>Atualize as informações de status, diretoria ou registre observações</p>
+    <div class="card">
+        <h1>Atualizar Processo</h1>
 
-    <!-- Dados fixos do processo -->
-    <div class="form-group">
-      <strong>Número do processo:</strong> {{ processo.numero_processo }}
+        <p><strong>Nº Processo:</strong> {{ processo.numero_processo }}</p>
+        <p><strong>RA de Origem:</strong> {{ processo.admin_regional }}</p>
+        <p><strong>Demanda:</strong> {{ processo.tipo_demanda }}</p>
+        <p><strong>Status Atual:</strong> {{ processo.status_demanda }}</p>
+
+        <form method="POST" onsubmit="return validarAtualizacao(event)">
+            <label for="status_demanda">Novo Status:</label>
+            <select id="status_demanda" name="status_demanda" required>
+                <option value="">Selecione</option>
+                {% for s in lista_status %}
+                <option value="{{ s }}" {% if processo.status_demanda == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="diretoria_destino">Nova Diretoria de Destino:</label>
+            <select id="diretoria_destino" name="diretoria_destino">
+                {% for d in lista_diretorias %}
+                <option value="{{ d }}" {% if processo.diretoria_destino == d %}selected{% endif %}>{{ d }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="observacoes">Observações:</label>
+            <textarea id="observacoes" name="observacoes" placeholder="Motivo da alteração, complementos ou despachos"></textarea>
+
+            <div class="botoes">
+                <button class="btn-primary" type="submit">Salvar Alterações</button>
+                <a href="/cadastro_processo" class="btn-secondary">← Voltar</a>
+            </div>
+        </form>
+
+        <div class="painel-totais" style="margin-top: 2rem">
+            <h2>Histórico de Movimentações</h2>
+            {% if historico %}
+                <ul>
+                    {% for mov in historico %}
+                    <li>
+                        <strong>{{ mov.data_movimentacao.strftime('%d/%m/%Y') }}</strong>: 
+                        {{ mov.status_movimentado }} por <em>{{ mov.responsavel }}</em><br>
+                        {% if mov.observacoes %}<small>"{{ mov.observacoes }}"</small>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Nenhuma movimentação registrada ainda.</p>
+            {% endif %}
+        </div>
     </div>
-    <div class="form-group">
-      <strong>Data de criação na RA:</strong> {{ processo.data_criacao_ra }}
-    </div>
-    <div class="form-group">
-      <strong>Data de entrada na CPCR:</strong> {{ processo.data_entrada_cpcr }}
-    </div>
-    <div class="form-group">
-      <strong>Região Administrativa:</strong> {{ processo.admin_regional }}
-    </div>
-    <div class="form-group">
-      <strong>Demanda:</strong> {{ processo.tipo_demanda }}
-    </div>
-
-    <!-- Formulário de atualização -->
-    <form method="POST">
-      <div class="form-group">
-        <label for="status_demanda">Novo Status</label>
-        <select id="status_demanda" name="status_demanda" required>
-          <option value="">Selecione</option>
-          {% for status in lista_status %}
-            <option value="{{ status }}" {% if status == processo.status_demanda %}selected{% endif %}>{{ status }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="diretoria_destino">Diretoria de Destino</label>
-        <select id="diretoria_destino" name="diretoria_destino">
-          <option value="">Selecione</option>
-          {% for dir in lista_diretorias %}
-            <option value="{{ dir }}" {% if dir == processo.diretoria_destino %}selected{% endif %}>{{ dir }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="observacoes">Observações</label>
-        <textarea id="observacoes" name="observacoes" rows="3" placeholder="Descreva o motivo da alteração, se necessário..."></textarea>
-      </div>
-
-      <div class="botoes">
-        <button type="submit" class="btn-primary">Salvar Alterações</button>
-        <a href="{{ url_for('cadastro_processo') }}" class="btn-secondary">← Voltar</a>
-      </div>
-    </form>
-
-    <hr style="margin: 2rem 0;">
-
-    <!-- Histórico -->
-    <h2>Histórico de Movimentações</h2>
-    {% if historico %}
-      <ul style="text-align: left;">
-        {% for mov in historico %}
-          <li>
-            <strong>{{ mov.data_movimentacao }}:</strong>
-            {{ mov.status_movimentado }} —
-            <em>{{ mov.responsavel }}</em>
-            {% if mov.observacoes %}<br><small>{{ mov.observacoes }}</small>{% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>Nenhuma movimentação registrada até o momento.</p>
-    {% endif %}
-
-  </div>
 </body>
 </html>
