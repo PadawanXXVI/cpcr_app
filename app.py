@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
 from configuracoes import DevelopmentConfig
 from scripts.utils import gerar_senha_provisoria, enviar_email, gerar_token_email, verificar_token_email
 from functools import wraps
+
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
@@ -186,16 +187,17 @@ def cadastro_processo():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        numero = request.form['numero_processo']
+        numero = request.form['numero_processo'].strip()
 
-        # Verifica se já existe
+        # Verifica se o processo já está cadastrado
         cursor.execute("SELECT id_processo FROM processos WHERE numero_processo = %s", (numero,))
         existente = cursor.fetchone()
 
         if existente:
+            flash("⚠️ Este número de processo já está cadastrado. Redirecionando para atualização...", "warning")
             return redirect(url_for('atualizar_processo', id=existente['id_processo']))
 
-        # Coleta dados
+        # Coleta dados do formulário
         dados = (
             numero,
             request.form['data_criacao_ra'],
@@ -216,9 +218,10 @@ def cadastro_processo():
         ''', dados)
         conn.commit()
 
+        flash("✅ Processo cadastrado com sucesso!", "success")
         return redirect(url_for('cadastro_processo'))
 
-    # Dados para os selects
+    # Listas para os selects
     lista_ras = [
         "RA I - Plano Piloto", "RA II - Gama", "RA III - Taguatinga", "RA IV - Brazlândia", "RA V - Sobradinho",
         "RA VI - Planaltina", "RA VII - Paranoá", "RA VIII - Núcleo Bandeirante", "RA IX - Ceilândia", "RA X - Guará",
@@ -261,6 +264,17 @@ def cadastro_processo():
                            lista_demandas=lista_demandas,
                            lista_status=lista_status,
                            totais=totais)
+
+@app.route('/verificar_processo', methods=['POST'])
+def verificar_processo():
+    numero = request.form.get('numero_processo', '').strip()
+    cursor.execute("SELECT id_processo FROM processos WHERE numero_processo = %s", (numero,))
+    processo = cursor.fetchone()
+
+    if processo:
+        return {'existe': True, 'id': processo['id_processo']}
+    else:
+        return {'existe': False}
 
 @app.route('/atualizar_processo/<int:id>', methods=['GET', 'POST'])
 @verificar_senha_provisoria
