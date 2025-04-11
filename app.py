@@ -265,9 +265,9 @@ def cadastro_processo():
                            lista_status=lista_status,
                            totais=totais)
 
-@app.route('/verificar_processo', methods=['POST'])
+@app.route('/verificar_processo', methods=['GET', 'POST'])
 def verificar_processo():
-    numero = request.form.get('numero_processo', '').strip()
+    numero = request.values.get('numero_processo', '').strip()
     cursor.execute("SELECT id_processo FROM processos WHERE numero_processo = %s", (numero,))
     processo = cursor.fetchone()
 
