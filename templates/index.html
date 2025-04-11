@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Controle de Processos CPCR</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta charset="UTF-8">
+    <title>Sistema CPCR - Início</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  <div class="card">
-    <h1>Bem-vindo ao Sistema<br>CPCR - NOVACAP</h1>
-    <p>Este é o sistema interno da Novacap para cadastro e gerenciamento de processos administrativos.</p>
-    <a href="{{ url_for('login') }}" class="btn-primary">Acessar o Sistema</a>
-  </div>
+    <div class="card">
+        <h1>Bem-vindo ao Sistema</h1>
+        <h2>CPCR - NOVACAP</h2>
+        <p>
+            Este é o sistema interno da Novacap para cadastro e gerenciamento de <strong>processos administrativos</strong>.
+        </p>
+        <a href="{{ url_for('login') }}" class="btn-primary">Acessar o Sistema</a>
+    </div>
 </body>
 </html>
