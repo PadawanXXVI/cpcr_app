@@ -11,13 +11,13 @@
     <h1>Cadastrar Processo</h1>
     <p>Preencha os dados obrigatórios para registrar um novo processo</p>
 
-    <!-- Alerta de processo já cadastrado -->
+    <!-- Alerta dinâmico se processo já existir -->
     <div id="alerta-processo" class="alert" style="display: none;"></div>
 
     <form method="POST" action="{{ url_for('cadastro_processo') }}">
       <div class="form-group">
         <label for="numero_processo">Número do Processo</label>
-        <input type="text" id="numero_processo" name="numero_processo" placeholder="Ex: 00000-00000000/0000-00" required>
+        <input type="text" id="numero_processo" name="numero_processo" required placeholder="Ex: 00000-00000000/0000-00">
       </div>
 
       <div class="form-group">
@@ -51,7 +51,7 @@
       </div>
 
       <div class="form-group">
-        <label for="vistoria_completa">Possui vistoria/foto georreferenciada?</label>
+        <label for="vistoria_completa">Possui Vistoria/Foto Georreferenciada?</label>
         <select id="vistoria_completa" name="vistoria_completa" required>
           <option value="">Selecione</option>
           <option value="Sim">Sim</option>
@@ -60,7 +60,7 @@
       </div>
 
       <div class="form-group">
-        <label for="diretoria_destino">Diretoria Destino</label>
+        <label for="diretoria_destino">Diretoria de Destino</label>
         <select id="diretoria_destino" name="diretoria_destino" required>
           <option value="">Selecione</option>
           <option value="DC">Diretoria das Cidades (DC)</option>
@@ -91,7 +91,7 @@
     </div>
   </div>
 
-  <!-- Validação Ajax externa -->
+  <!-- Importação correta do JS -->
   <script src="{{ url_for('static', filename='scripts/validar_processo.js') }}"></script>
 </body>
 </html>

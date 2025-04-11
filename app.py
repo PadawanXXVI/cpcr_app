@@ -268,6 +268,7 @@ def cadastro_processo():
 @app.route('/verificar_processo', methods=['GET', 'POST'])
 def verificar_processo():
     numero = request.values.get('numero_processo', '').strip()
+
     cursor.execute("SELECT id_processo FROM processos WHERE numero_processo = %s", (numero,))
     processo = cursor.fetchone()
 
@@ -275,6 +276,7 @@ def verificar_processo():
         return {'existe': True, 'id': processo['id_processo']}
     else:
         return {'existe': False}
+
 
 @app.route('/atualizar_processo/<int:id>', methods=['GET', 'POST'])
 @verificar_senha_provisoria
