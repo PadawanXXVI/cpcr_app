@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Central de Relacionamento</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <main class="dashboard-container">
+
+    <h1>Painel de Indicadores - Central de Relacionamento</h1>
+    <p class="descricao-dashboard">Abaixo você confere os principais dados da tramitação de processos.</p>
+
+    <div class="cards-dashboard">
+
+      <div class="card-info">
+        <h2>Total de Processos</h2>
+        <p>{{ total_processos }}</p>
+      </div>
+
+      <div class="card-info">
+        <h2>Iniciados pela SECRE</h2>
+        <p>{{ total_secre }}</p>
+      </div>
+
+      <div class="card-info">
+        <h2>Iniciados pela CR</h2>
+        <p>{{ total_cr }}</p>
+      </div>
+
+      <div class="card-info">
+        <h2>Diretoria de Obras (DO)</h2>
+        <p>{{ total_do }}</p>
+      </div>
+
+      <div class="card-info">
+        <h2>Diretoria das Cidades (DC)</h2>
+        <p>{{ total_dc }}</p>
+      </div>
+
+      <div class="card-info">
+        <h2>Processos SGIA</h2>
+        <p>{{ total_sgia }}</p>
+      </div>
+
+      <div class="card-info">
+        <h2>Improcedentes</h2>
+        <p>{{ total_improcedentes }}</p>
+      </div>
+
+      <div class="card-info">
+        <h2>Concluídos</h2>
+        <p>{{ total_concluidos }}</p>
+      </div>
+
+    </div>
+
+    <div class="acoes-dashboard">
+      <a href="{{ url_for('cadastro_processo') }}" class="btn-primary">Cadastrar Novo Processo</a>
+      <a href="{{ url_for('visualizacao') }}" class="btn-secundario">Visualizar Processos</a>
+      <a href="{{ url_for('index') }}" class="btn-terciario">Sair do Sistema</a>
+    </div>
+
+    <section class="bi-section">
+      <h2>Relatório Interativo (Power BI)</h2>
+      <iframe src="URL_DO_RELATORIO_DE_BI" width="100%" height="500px" frameborder="0" allowfullscreen></iframe>
+    </section>
+
+  </main>
+</body>
+</html>

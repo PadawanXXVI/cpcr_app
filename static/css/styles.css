@@ -1,152 +1,89 @@
-/* Reset básico */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Dashboard */
+
+.dashboard-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Corpo com fundo cinza claro e centralização vertical/horizontal */
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f5f5f5;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #333;
-  padding: 1rem;
-}
-
-/* Cartão central */
-.card {
-  background-color: #fff;
-  padding: 2rem 3rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  width: 100%;
+.dashboard-container h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 
-/* Títulos */
-.card h1,
-.card h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-/* Parágrafos explicativos */
-.card p {
+.descricao-dashboard {
   font-size: 1rem;
-  margin-bottom: 1.2rem;
+  text-align: center;
   color: #555;
+  margin-bottom: 2rem;
 }
 
-/* Inputs padrão */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="date"],
-select,
-textarea {
-  width: 100%;
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+.cards-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
-/* Labels */
-label {
-  display: block;
+.card-info {
+  background-color: #fff;
+  border-left: 5px solid #007bff;
+  border-radius: 10px;
+  padding: 1.2rem;
+  box-shadow: 0 0 6px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
   text-align: left;
-  margin-bottom: 0.4rem;
-  font-weight: 500;
+}
+
+.card-info:hover {
+  transform: translateY(-3px);
+}
+
+.card-info h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.card-info p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.acoes-dashboard {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-terciario {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-terciario:hover {
+  background-color: #c82333;
+}
+
+/* BI embed */
+.bi-section {
+  margin-top: 3rem;
+}
+
+.bi-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
   color: #444;
-}
-
-/* Botões principais */
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-  width: 100%;
-  margin-top: 0.5rem;
-  display: block;
-  text-decoration: none;
-  text-align: center;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-/* Botões secundários */
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  margin-top: 0.5rem;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
-}
-
-/* Alerta */
-.alert {
-  background-color: #ffe4e4;
-  color: #a33;
-  padding: 0.8rem;
-  border: 1px solid #ff9999;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  text-align: left;
-}
-
-/* Links secundários */
-.link-secundario {
-  margin-top: 1rem;
-  font-size: 0.95rem;
-  text-align: center;
-}
-
-.link-secundario a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.link-secundario a:hover {
-  text-decoration: underline;
-}
-
-/* Responsividade */
-@media (max-width: 500px) {
-  .card {
-    padding: 1.5rem;
-  }
-
-  .card h1,
-  .card h2 {
-    font-size: 1.25rem;
-  }
-
-  .btn-primary,
-  .btn-secondary {
-    font-size: 1rem;
-    width: 100%;
-  }
 }

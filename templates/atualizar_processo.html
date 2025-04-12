@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atualizar Processo</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <title>Atualizar Processo - Central de Relacionamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script>
         function validarAtualizacao(event) {
             const status = document.getElementById("status_demanda").value;
-            if (!status) {
-                alert("Selecione um novo status para o processo.");
+            const responsavel = document.getElementById("responsavel").value;
+            if (!status || !responsavel) {
+                alert("Preencha todos os campos obrigatórios.");
                 event.preventDefault();
                 return false;
             }
@@ -27,6 +28,14 @@
         <p><strong>Status Atual:</strong> {{ processo.status_demanda }}</p>
 
         <form method="POST" onsubmit="return validarAtualizacao(event)">
+            <label for="responsavel">Responsável pela Alteração:</label>
+            <select id="responsavel" name="responsavel" required>
+                <option value="">Selecione</option>
+                {% for usuario in lista_usuarios %}
+                <option value="{{ usuario }}" {% if usuario_logado == usuario %}selected{% endif %}>{{ usuario }}</option>
+                {% endfor %}
+            </select>
+
             <label for="status_demanda">Novo Status:</label>
             <select id="status_demanda" name="status_demanda" required>
                 <option value="">Selecione</option>
@@ -47,7 +56,7 @@
 
             <div class="botoes">
                 <button class="btn-primary" type="submit">Salvar Alterações</button>
-                <a href="/cadastro_processo" class="btn-secondary">← Voltar</a>
+                <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Voltar ao Painel</a>
             </div>
         </form>
 

@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Redefinir Senha - Sistema CPCR</title>
+  <title>Redefinir Senha - Central de Relacionamento</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
   <div class="card">
-    <h2>Redefinir Senha</h2>
-    <p>Digite sua nova senha abaixo. Esse link expira em 1 hora por segurança.</p>
+    <h1>Redefinir Senha</h1>
+    <p>Informe sua nova senha. Apenas usuários autorizados poderão redefinir.</p>
 
     {% if mensagem %}
       <div class="alert">{{ mensagem }}</div>
