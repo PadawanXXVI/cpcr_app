@@ -35,6 +35,16 @@
       display: flex;
       gap: 1rem;
     }
+    .historico-card {
+      background: #f9f9f9;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      border-left: 4px solid #007bff;
+      font-size: 0.9rem;
+    }
+    .mt-2 {
+      margin-top: 2rem;
+    }
   </style>
 </head>
 <body>
@@ -43,7 +53,6 @@
 
     <form method="GET" action="{{ url_for('visualizacao') }}">
       <div class="filtros">
-        <!-- Campos de filtro -->
         <div>
           <label for="numero_processo">Número do Processo:</label>
           <input type="text" name="numero_processo" id="numero_processo" value="{{ request.args.get('numero_processo', '') }}">
@@ -101,19 +110,18 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-primary" style="margin-top: 1rem">🔎 Buscar</button>
+      <button type="submit" class="btn-primary mt-2">🔎 Buscar</button>
     </form>
 
     {% if processos %}
       <div class="botoes-exportar">
         <form method="POST" action="{{ url_for('exportar_excel') }}">
           <input type="hidden" name="filtros_json" value="{{ filtros_json }}">
-          <button class="btn-primary" type="submit">📄 Exportar Excel</button>
+          <button class="btn-primary" type="submit" aria-label="Exportar resultados para Excel">📄 Exportar Excel</button>
         </form>
-
         <form method="POST" action="{{ url_for('exportar_pdf') }}">
           <input type="hidden" name="filtros_json" value="{{ filtros_json }}">
-          <button class="btn-secondary" type="submit">🖨️ Exportar PDF</button>
+          <button class="btn-secondary" type="submit" aria-label="Exportar resultados para PDF">🖨️ Exportar PDF</button>
         </form>
       </div>
 
@@ -142,7 +150,7 @@
           </tr>
           <tr>
             <td colspan="6">
-              <div style="background: #f9f9f9; padding: 1rem; margin-top: 0.5rem; border-left: 4px solid #007bff; font-size: 0.9rem;">
+              <div class="historico-card">
                 <p><strong>Histórico de Tramitação:</strong></p>
                 <ul style="list-style: none; padding-left: 0;">
                   <li><strong>Data de Criação na RA:</strong> {{ p.data_criacao_ra.strftime('%d/%m/%Y') }}</li>
@@ -158,14 +166,11 @@
         </tbody>
       </table>
     {% else %}
-      <p style="margin-top: 1.5rem">Nenhum processo encontrado com os critérios informados.</p>
+      <p class="mt-2">Nenhum processo encontrado com os critérios informados.</p>
     {% endif %}
 
-    <div class="botoes" style="margin-top: 2rem">
+    <div class="botoes mt-2">
       <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Voltar ao Painel</a>
-    </div>
-
-    <div style="margin-top: 1rem;">
       <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
     </div>
   </div>
