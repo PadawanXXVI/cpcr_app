@@ -7,13 +7,15 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  <div class="card">
+  <main class="card">
     <h1>Cadastrar Processo</h1>
     <p>Preencha os dados obrigatórios para registrar um novo processo.</p>
 
+    <!-- Alerta de processo já existente -->
     <div id="alerta-processo" class="alert" style="display: none;"></div>
 
     <form method="POST" action="{{ url_for('cadastro_processo') }}">
+      <!-- Campo oculto com o usuário logado -->
       <input type="hidden" name="responsavel" value="{{ usuario_logado }}">
 
       <div class="form-group">
@@ -96,14 +98,11 @@
       <button type="submit" class="btn-primary">Cadastrar</button>
     </form>
 
-    <div style="margin-top: 1rem;">
+    <div class="botoes" style="margin-top: 1.5rem;">
       <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Voltar ao Painel</a>
-    </div>
-
-    <div style="margin-top: 1rem;">
       <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
     </div>
-  </div>
+  </main>
 
   <script src="{{ url_for('static', filename='scripts/validar_processo.js') }}"></script>
 </body>
