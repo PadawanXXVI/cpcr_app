@@ -54,6 +54,15 @@
         <p>{{ total_concluidos }}</p>
       </div>
 
+      {# Exemplo para admin no futuro:
+      {% if is_admin and total_usuarios_pendentes > 0 %}
+      <div class="card-info alert-admin">
+        <h2>Usuários Pendentes</h2>
+        <p>{{ total_usuarios_pendentes }}</p>
+      </div>
+      {% endif %}
+      #}
+
     </div>
 
     <div class="acoes-dashboard">

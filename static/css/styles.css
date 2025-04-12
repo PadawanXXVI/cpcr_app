@@ -1,4 +1,163 @@
-/* Dashboard */
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corpo geral */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  color: #333;
+}
+
+/* Cartão central */
+.card {
+  background-color: #fff;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  width: 100%;
+  text-align: center;
+}
+
+.card h1,
+.card h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.card p {
+  font-size: 1rem;
+  margin-bottom: 1.2rem;
+  color: #555;
+}
+
+/* Formulários */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  text-align: left;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #444;
+}
+
+/* Botões principais */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  width: 100%;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Botões secundários */
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Botão de logout ou ação crítica */
+.btn-terciario {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-terciario:hover {
+  background-color: #c82333;
+}
+
+/* Alerta */
+.alert {
+  background-color: #ffe4e4;
+  color: #a33;
+  padding: 0.8rem;
+  border: 1px solid #ff9999;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+/* Links */
+.link-secundario {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.link-secundario a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.link-secundario a:hover {
+  text-decoration: underline;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  .card {
+    padding: 1.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-terciario {
+    font-size: 1rem;
+    width: 100%;
+  }
+}
+
+/* DASHBOARD */
 
 .dashboard-container {
   padding: 2rem;
@@ -60,23 +219,7 @@
   justify-content: center;
 }
 
-.btn-terciario {
-  background-color: #dc3545;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  text-decoration: none;
-  text-align: center;
-}
-
-.btn-terciario:hover {
-  background-color: #c82333;
-}
-
-/* BI embed */
+/* Power BI embed */
 .bi-section {
   margin-top: 3rem;
 }
@@ -86,4 +229,21 @@
   margin-bottom: 1rem;
   font-size: 1.3rem;
   color: #444;
+}
+
+/* Tabelas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+}
+
+th, td {
+  padding: 0.7rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f0f0f0;
 }

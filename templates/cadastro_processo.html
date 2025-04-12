@@ -11,10 +11,10 @@
     <h1>Cadastrar Processo</h1>
     <p>Preencha os dados obrigatórios para registrar um novo processo.</p>
 
-    <!-- Alerta dinâmico se processo já existir -->
     <div id="alerta-processo" class="alert" style="display: none;"></div>
 
     <form method="POST" action="{{ url_for('cadastro_processo') }}">
+      <input type="hidden" name="responsavel" value="{{ usuario_logado }}">
 
       <div class="form-group">
         <label for="numero_processo">Número do Processo</label>
@@ -98,6 +98,10 @@
 
     <div style="margin-top: 1rem;">
       <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Voltar ao Painel</a>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
     </div>
   </div>
 

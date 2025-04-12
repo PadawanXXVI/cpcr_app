@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualização de Processos</title>
-  <link rel="stylesheet" href="/static/css/styles.css">
+  <title>Visualização de Processos - Central de Relacionamento</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <style>
     table {
       width: 100%;
@@ -30,18 +30,24 @@
       flex: 1;
       min-width: 180px;
     }
+    .botoes-exportar {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Consulta de Processos</h1>
+
     <form method="GET" action="{{ url_for('visualizacao') }}">
       <div class="filtros">
+        <!-- Campos de filtro -->
         <div>
           <label for="numero_processo">Número do Processo:</label>
-          <input type="text" name="numero_processo" id="numero_processo" placeholder="Digite parte do número..." value="{{ request.args.get('numero_processo', '') }}">
+          <input type="text" name="numero_processo" id="numero_processo" value="{{ request.args.get('numero_processo', '') }}">
         </div>
-
         <div>
           <label for="admin_regional">Região Administrativa:</label>
           <select name="admin_regional" id="admin_regional">
@@ -51,7 +57,6 @@
             {% endfor %}
           </select>
         </div>
-
         <div>
           <label for="tipo_demanda">Demanda:</label>
           <select name="tipo_demanda" id="tipo_demanda">
@@ -61,7 +66,6 @@
             {% endfor %}
           </select>
         </div>
-
         <div>
           <label for="status_demanda">Status:</label>
           <select name="status_demanda" id="status_demanda">
@@ -71,41 +75,98 @@
             {% endfor %}
           </select>
         </div>
+        <div>
+          <label for="data_inicio">Data de Entrada (início):</label>
+          <input type="date" name="data_inicio" id="data_inicio" value="{{ request.args.get('data_inicio', '') }}">
+        </div>
+        <div>
+          <label for="data_fim">Data de Entrada (fim):</label>
+          <input type="date" name="data_fim" id="data_fim" value="{{ request.args.get('data_fim', '') }}">
+        </div>
+        <div>
+          <label for="diretoria_destino">Diretoria de Destino:</label>
+          <select name="diretoria_destino" id="diretoria_destino">
+            <option value="">Todas</option>
+            <option value="DC" {% if request.args.get('diretoria_destino') == 'DC' %}selected{% endif %}>Diretoria das Cidades (DC)</option>
+            <option value="DO" {% if request.args.get('diretoria_destino') == 'DO' %}selected{% endif %}>Diretoria de Obras (DO)</option>
+          </select>
+        </div>
+        <div>
+          <label for="tramite_inicial">Tramitação Inicial:</label>
+          <select name="tramite_inicial" id="tramite_inicial">
+            <option value="">Todas</option>
+            <option value="SECRE" {% if request.args.get('tramite_inicial') == 'SECRE' %}selected{% endif %}>SECRE</option>
+            <option value="CR" {% if request.args.get('tramite_inicial') == 'CR' %}selected{% endif %}>Central de Relacionamento</option>
+          </select>
+        </div>
       </div>
+
       <button type="submit" class="btn-primary" style="margin-top: 1rem">🔎 Buscar</button>
     </form>
 
     {% if processos %}
-    <table>
-      <thead>
-        <tr>
-          <th>Número</th>
-          <th>RA</th>
-          <th>Demanda</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in processos %}
-        <tr>
-          <td>{{ p.numero_processo }}</td>
-          <td>{{ p.admin_regional }}</td>
-          <td>{{ p.tipo_demanda }}</td>
-          <td>{{ p.status_demanda }}</td>
-          <td>
-            <a href="{{ url_for('atualizar_processo', id=p.id_processo) }}" class="btn-secondary">Atualizar</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      <div class="botoes-exportar">
+        <form method="POST" action="{{ url_for('exportar_excel') }}">
+          <input type="hidden" name="filtros_json" value="{{ filtros_json }}">
+          <button class="btn-primary" type="submit">📄 Exportar Excel</button>
+        </form>
+
+        <form method="POST" action="{{ url_for('exportar_pdf') }}">
+          <input type="hidden" name="filtros_json" value="{{ filtros_json }}">
+          <button class="btn-secondary" type="submit">🖨️ Exportar PDF</button>
+        </form>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>RA</th>
+            <th>Demanda</th>
+            <th>Status</th>
+            <th>Diretoria</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in processos %}
+          <tr>
+            <td>{{ p.numero_processo }}</td>
+            <td>{{ p.admin_regional }}</td>
+            <td>{{ p.tipo_demanda }}</td>
+            <td>{{ p.status_demanda }}</td>
+            <td>{{ p.diretoria_destino }}</td>
+            <td>
+              <a href="{{ url_for('atualizar_processo', id=p.id_processo) }}" class="btn-secondary">Atualizar</a>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="6">
+              <div style="background: #f9f9f9; padding: 1rem; margin-top: 0.5rem; border-left: 4px solid #007bff; font-size: 0.9rem;">
+                <p><strong>Histórico de Tramitação:</strong></p>
+                <ul style="list-style: none; padding-left: 0;">
+                  <li><strong>Data de Criação na RA:</strong> {{ p.data_criacao_ra.strftime('%d/%m/%Y') }}</li>
+                  <li>
+                    <strong>Entrada:</strong> {{ p.data_entrada.strftime('%d/%m/%Y') }} — 
+                    Iniciado pela {{ 'Secretaria Geral (SECRE)' if p.tramite_inicial == 'SECRE' else 'Central de Relacionamento (CR)' }}
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     {% else %}
       <p style="margin-top: 1.5rem">Nenhum processo encontrado com os critérios informados.</p>
     {% endif %}
 
-    <div class="botoes">
-      <a href="/cadastro_processo" class="btn-secondary">← Voltar</a>
+    <div class="botoes" style="margin-top: 2rem">
+      <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Voltar ao Painel</a>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
     </div>
   </div>
 </body>
