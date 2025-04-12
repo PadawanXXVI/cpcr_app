@@ -247,3 +247,25 @@ th, td {
 th {
   background-color: #f0f0f0;
 }
+
+/* Utilitários e complementos */
+
+.mt-2 {
+  margin-top: 2rem;
+}
+
+.botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.historico-card {
+  background: #f9f9f9;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  border-left: 4px solid #007bff;
+  font-size: 0.9rem;
+}
