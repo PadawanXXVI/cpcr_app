@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from modelos import db, Usuario, Processo, Movimentacao, Status, Demanda, RegiaoAdministrativa
 from configuracoes import DevelopmentConfig
