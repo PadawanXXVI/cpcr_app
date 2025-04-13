@@ -2,10 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from modelos import db, Usuario, Processo, Movimentacao, Status, Demanda, RegiaoAdministrativa
 from configuracoes import DevelopmentConfig
+from utils import criar_log
 from functools import wraps
 from datetime import datetime
 
-# Configuração
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 db.init_app(app)
@@ -47,6 +47,7 @@ def login():
             session['usuario'] = user.usuario
             session['id_usuario'] = user.id_usuario
 
+            criar_log("Login realizado com sucesso", id_usuario=user.id_usuario)
             return redirect(url_for('dashboard'))
 
         return "Usuário ou senha incorretos."
@@ -55,6 +56,7 @@ def login():
 
 @app.route('/logout')
 def logout():
+    criar_log("Logout efetuado", id_usuario=session.get("id_usuario"))
     session.clear()
     return redirect(url_for('index'))
 
@@ -103,6 +105,8 @@ def cadastrar_usuario():
         )
         db.session.add(novo)
         db.session.commit()
+
+        criar_log(f"Usuário cadastrado: {usuario}", id_usuario=novo.id_usuario)
         return "Usuário cadastrado. Aguarde autorização do administrador."
 
     return render_template("cadastro_usuario.html")
@@ -120,6 +124,8 @@ def trocar_senha():
         usuario = Usuario.query.get(session['id_usuario'])
         usuario.senha_hash = generate_password_hash(nova)
         db.session.commit()
+
+        criar_log("Senha alterada com sucesso", id_usuario=usuario.id_usuario)
         return redirect(url_for('dashboard'))
 
     return render_template("trocar_senha.html")
@@ -158,6 +164,7 @@ def cadastro_processo():
         db.session.add(movimentacao)
         db.session.commit()
 
+        criar_log(f"Cadastro de novo processo: {numero}", id_usuario=session['id_usuario'])
         flash("✅ Processo cadastrado com sucesso!", "success")
         return redirect(url_for('cadastro_processo'))
 
@@ -191,6 +198,7 @@ def atualizar_processo(id):
         ))
         db.session.commit()
 
+        criar_log(f"Status atualizado para '{novo_status}' | ID Processo: {id}", id_usuario=session['id_usuario'])
         return redirect(url_for('atualizar_processo', id=id))
 
     status = [s.nome for s in Status.query.order_by("nome")]
