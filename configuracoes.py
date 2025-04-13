@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 
+# Carrega variáveis do arquivo .env
 load_dotenv()
 
 class DevelopmentConfig:
@@ -8,6 +9,7 @@ class DevelopmentConfig:
     MYSQL_USER = os.getenv("MYSQL_USER")
     MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
     MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
+    
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY")

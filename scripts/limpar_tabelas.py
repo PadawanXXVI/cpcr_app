@@ -1,19 +1,23 @@
 from flask import Flask
 from configuracoes import DevelopmentConfig
-from modelos import db, Processo, Movimentacao, LogSistema, Demanda, Status, RegiaoAdministrativa
+from modelos import db, Processo, Movimentacao, LogSistema, Status, Demanda, RegiaoAdministrativa
+from sqlalchemy import text
 
+# Inicializa o app Flask
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 db.init_app(app)
 
 with app.app_context():
-    print("🧼 Limpando dados das tabelas (exceto usuários)...")
+    print("🧹 Limpando tabelas do banco de dados...")
 
+    # Ordem correta para remoção (tabelas com FK dependentes vêm primeiro)
     tabelas = [Movimentacao, Processo, LogSistema, Status, Demanda, RegiaoAdministrativa]
-    
+
     for tabela in tabelas:
-        registros = db.session.query(tabela).delete()
-        print(f"→ {registros} registros apagados da tabela {tabela.__tablename__}")
+        print(f"❌ Apagando tabela: {tabela.__tablename__}")
+        with db.engine.connect() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {tabela.__tablename__} CASCADE"))
 
     db.session.commit()
-    print("✅ Limpeza concluída com sucesso.")
+    print("✅ Tabelas removidas com sucesso!")
