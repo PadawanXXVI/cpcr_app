@@ -257,5 +257,17 @@ def visualizacao():
         lista_status=status
     )
 
+@app.route('/verificar_processo', methods=['POST'])
+@login_required
+def verificar_processo():
+    numero = request.json.get('numero_processo', '').strip()
+    if not numero:
+        return jsonify({"status": "vazio"}), 400
+
+    existente = Processo.query.filter_by(numero_processo=numero).first()
+    if existente:
+        return jsonify({"status": "existe", "id": existente.id_processo})
+    return jsonify({"status": "disponivel"})
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -104,6 +104,41 @@
     </div>
   </main>
 
-  <script src="{{ url_for('static', filename='scripts/validar_processo.js') }}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const campoNumero = document.getElementById("numero_processo");
+        const mensagem = document.createElement("small");
+        mensagem.style.color = "red";
+        campoNumero.parentNode.appendChild(mensagem);
+    
+        campoNumero.addEventListener("blur", function () {
+            const numero = campoNumero.value.trim();
+            mensagem.textContent = "";
+    
+            if (numero.length === 0) return;
+    
+            fetch("/verificar_processo", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ numero_processo: numero }),
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === "existe") {
+                    mensagem.innerHTML = `⚠️ Processo já cadastrado. <a href="/atualizar_processo/${data.id}">Clique aqui para editar</a>`;
+                } else if (data.status === "disponivel") {
+                    mensagem.style.color = "green";
+                    mensagem.textContent = "✅ Número de processo disponível.";
+                }
+            })
+            .catch((err) => {
+                console.error("Erro ao verificar processo:", err);
+            });
+        });
+    });
+  </script>
+    
 </body>
 </html>
