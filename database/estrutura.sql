@@ -1,5 +1,5 @@
 -- Criação do banco de dados
-CREATE DATABASE IF NOT EXISTS cpcr CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS cr_novacap CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE cpcr;
 
 -- Tabela de usuários
