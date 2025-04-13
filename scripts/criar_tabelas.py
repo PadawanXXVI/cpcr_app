@@ -1,51 +1,86 @@
-import os
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from flask import Flask
 from configuracoes import DevelopmentConfig
-import mysql.connector
+from modelos import db, Usuario, Processo, Movimentacao, LogSistema, Status, Demanda, RegiaoAdministrativa
+from sqlalchemy import text
 
-conn = mysql.connector.connect(
-    host=DevelopmentConfig.MYSQL_HOST,
-    user=DevelopmentConfig.MYSQL_USER,
-    password=DevelopmentConfig.MYSQL_PASSWORD,
-    database=DevelopmentConfig.MYSQL_DATABASE
-)
-cursor = conn.cursor()
+app = Flask(__name__)
+app.config.from_object(DevelopmentConfig)
+db.init_app(app)
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS processos (
-    id_processo INT AUTO_INCREMENT PRIMARY KEY,
-    numero_processo VARCHAR(25) NOT NULL UNIQUE,
-    data_criacao_ra DATE NOT NULL,
-    data_entrada_cpcr DATE NOT NULL,
-    admin_regional VARCHAR(100) NOT NULL,
-    tipo_demanda VARCHAR(100) NOT NULL,
-    vistoria_completa TEXT,
-    diretoria_destino VARCHAR(10),
-    status_demanda VARCHAR(100) NOT NULL,
-    descricao_processo TEXT,
-    data_ultima_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)
-''')
+with app.app_context():
+    print("🔄 Iniciando criação do banco de dados 'cr_novacap'...")
 
-print("✅ Tabela 'processos' criada com sucesso.")
+    # Tabelas que podem ser removidas (exceto usuários)
+    tabelas_para_apagar = [Movimentacao, Processo, LogSistema, Status, Demanda, RegiaoAdministrativa]
 
-# Criação da tabela 'movimentacoes'
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS movimentacoes (
-        id_movimentacao INT PRIMARY KEY AUTO_INCREMENT,
-        id_processo INT NOT NULL,
-        id_usuario INT NOT NULL,
-        data_movimentacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        status_movimentado VARCHAR(100) NOT NULL,
-        observacoes TEXT,
-        FOREIGN KEY (id_processo) REFERENCES processos(id_processo),
-        FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-    )
-""")
-print("[✔] Tabela 'movimentacoes' criada ou já existente.")
+    for tabela in tabelas_para_apagar:
+        print(f"🧨 Apagando tabela: {tabela.__tablename__}")
+        with db.engine.connect() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {tabela.__tablename__} CASCADE"))
 
-conn.commit()
-cursor.close()
-conn.close()
+    db.create_all()
+    print("✅ Tabelas criadas com sucesso.")
+
+    if not RegiaoAdministrativa.query.first():
+        ras = [
+            ("RA I", "Plano Piloto"), ("RA II", "Gama"), ("RA III", "Taguatinga"),
+            ("RA IV", "Brazlândia"), ("RA V", "Sobradinho"), ("RA VI", "Planaltina"),
+            ("RA VII", "Paranoá"), ("RA VIII", "Núcleo Bandeirante"), ("RA IX", "Ceilândia"),
+            ("RA X", "Guará"), ("RA XI", "Cruzeiro"), ("RA XII", "Samambaia"),
+            ("RA XIII", "Santa Maria"), ("RA XIV", "São Sebastião"), ("RA XV", "Recanto das Emas"),
+            ("RA XVI", "Lago Sul"), ("RA XVII", "Riacho Fundo"), ("RA XVIII", "Lago Norte"),
+            ("RA XIX", "Candangolândia"), ("RA XX", "Águas Claras"), ("RA XXI", "Riacho Fundo II"),
+            ("RA XXII", "Sudoeste/Octogonal"), ("RA XXIII", "Varjão"), ("RA XXIV", "Park Way"),
+            ("RA XXV", "SCIA/Estrutural"), ("RA XXVI", "Sobradinho II"), ("RA XXVII", "Jardim Botânico"),
+            ("RA XXVIII", "Itapoã"), ("RA XXIX", "SIA"), ("RA XXX", "Vicente Pires"),
+            ("RA XXXI", "Fercal"), ("RA XXXII", "Sol Nascente e Pôr do Sol"),
+            ("RA XXXIII", "Arniqueira"), ("RA XXXIV", "Arapoanga"), ("RA XXXV", "Água Quente")
+        ]
+        for cod, nome in ras:
+            db.session.add(RegiaoAdministrativa(codigo=cod, nome=nome))
+
+    if not Demanda.query.first():
+        demandas = sorted([
+            "Alambrado (Cercamento)",
+            "Boca de Lobo",
+            "Bueiro",
+            "Calçada",
+            "Doação de Mudas",
+            "Estacionamentos",
+            "Galeria de Água Potável",
+            "Galeria de Águas Pluviais",
+            "Implantação (calçada, quadra, praça, estacionamento etc.)",
+            "Jardim",
+            "Mato Alto",
+            "Meio-fio",
+            "Parque Infantil",
+            "Passagem Subterrânea",
+            "Passarela",
+            "Pisos Articulados",
+            "Pista de Skate",
+            "Poda / Supressão de Árvore",
+            "Ponto de Encontro Comunitário (PEC)",
+            "Praça",
+            "Quadra de Esporte",
+            "Rampa",
+            "Recapeamento Asfáltico",
+            "Tapa-buraco"
+        ])
+        for d in demandas:
+            db.session.add(Demanda(nome=d))
+
+    if not Status.query.first():
+        status = sorted([
+            "Concluído",
+            "Devolvido à RA de origem",
+            "Enviado à Diretoria das Cidades",
+            "Enviado à Diretoria de Obras",
+            "Improcedente - serviço de implantação",
+            "Improcedente - serviço de natureza continuada",
+            "Improcedente - tramitação pelo SGIA"
+        ])
+        for s in status:
+            db.session.add(Status(nome=s))
+
+    db.session.commit()
+    print("✅ Dados dinâmicos inseridos com sucesso (se estavam ausentes).")
