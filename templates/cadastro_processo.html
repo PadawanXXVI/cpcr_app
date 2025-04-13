@@ -104,35 +104,8 @@
     </div>
   </main>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const campoNumero = document.getElementById("numero_processo");
-  
-      campoNumero.addEventListener("blur", function () {
-        const numero = campoNumero.value.trim();
-  
-        if (!numero) return;
-  
-        fetch("/verificar_processo", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ numero_processo: numero })
-        })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === "existe") {
-            // Redireciona imediatamente para a tela de atualização
-            window.location.href = `/atualizar_processo/${data.id}`;
-          }
-        })
-        .catch((err) => {
-          console.error("Erro ao verificar processo:", err);
-        });
-      });
-    });
-  </script>
+  <script src="{{ url_for('static', filename='scripts/validar_processo.js') }}"></script>
+
     
 </body>
 </html>
