@@ -1,87 +1,29 @@
 from flask import Flask
-from modelos import db, Usuario, Processo, Movimentacao, LogSistema, Demanda, Status, RegiaoAdministrativa
-from dotenv import load_dotenv
-import os
-
-# Carregar variáveis do .env
-load_dotenv()
+from configuracoes import DevelopmentConfig
+from modelos import db, Usuario, Processo, Movimentacao, LogSistema, Status, Demanda, RegiaoAdministrativa
+from sqlalchemy import text
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("SQLALCHEMY_DATABASE_URI")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+app.config.from_object(DevelopmentConfig)
 db.init_app(app)
 
 with app.app_context():
-    print("\n🔧 Iniciando criação do banco de dados 'cr_novacap'...")
+    print("🔄 Iniciando criação do banco de dados 'cr_novacap'...")
 
-    # DROP das tabelas, mantendo apenas usuários existentes
-    db.reflect()
-    for table in reversed(db.metadata.sorted_tables):
-        if table.name != "usuarios":
-            print(f"❌ Apagando tabela: {table.name}")
-            db.engine.execute(f"DROP TABLE IF EXISTS {table.name} CASCADE")
+    # Tabelas em ordem para evitar conflitos com foreign keys
+    tabelas = [Movimentacao, Processo, Usuario, LogSistema, Status, Demanda, RegiaoAdministrativa]
 
-    # Criar todas as tabelas novamente
+    for tabela in tabelas:
+        print(f"🧨 Apagando tabela: {tabela.__tablename__}")
+        with db.engine.connect() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {tabela.__tablename__} CASCADE"))
+
+    # Criação das tabelas
     db.create_all()
     print("✅ Tabelas criadas com sucesso.")
 
-    # Garantir que o usuário admin (ID 1) continue com is_admin=True
-    admin = Usuario.query.get(1)
-    if admin:
-        admin.is_admin = True
-        db.session.commit()
-        print("🔐 Admin (ID 1) mantido como administrador.")
-    else:
-        print("⚠️ Nenhum usuário com ID 1 encontrado.")
-
-    # Inserir STATUS
-    status_oficiais = [
-        "Enviado à Diretoria das Cidades",
-        "Enviado à Diretoria de Obras",
-        "Devolvido à RA de origem",
-        "Improcedente - tramitação pelo SGIA",
-        "Improcedente - implantação ou necessita de orçamento próprio",
-        "Improcedente - cronograma próprio da Diretoria",
-        "Concluído"
-    ]
-    for nome in status_oficiais:
-        if not Status.query.filter_by(nome=nome).first():
-            db.session.add(Status(nome=nome))
-
-    # Inserir DEMANDAS
-    demandas_reais = [
-        "Alambrado (Cercamento)",
-        "Boca de Lobo",
-        "Bueiro",
-        "Calçada",
-        "Estacionamentos",
-        "Jardim",
-        "Mato Alto",
-        "Meio-fio",
-        "Parque Infantil",
-        "Passarela",
-        "Passagem Subterrânea",
-        "Pisos Articulados",
-        "Pista de Skate",
-        "Ponto de Encontro Comunitário (PEC)",
-        "Praça",
-        "Quadra de Esporte",
-        "Rampa",
-        "Rua, Via ou Rodovia (pista urbana)",
-        "Tapa-Buraco",
-        "Galeria de Águas Pluviais",
-        "Doação de Mudas",
-        "Poda / Supressão de Árvore",
-        "Implantação (calçada, quadra, praça, estacionamento etc.)",
-        "Galeria de Água Potável"
-    ]
-    for nome in demandas_reais:
-        if not Demanda.query.filter_by(nome=nome).first():
-            db.session.add(Demanda(nome=nome))
-
-    # Inserir REGIÕES ADMINISTRATIVAS
-    ras_completas = [
+    # Dados iniciais para tabelas dinâmicas
+    ras = [
         ("RA I", "Plano Piloto"), ("RA II", "Gama"), ("RA III", "Taguatinga"),
         ("RA IV", "Brazlândia"), ("RA V", "Sobradinho"), ("RA VI", "Planaltina"),
         ("RA VII", "Paranoá"), ("RA VIII", "Núcleo Bandeirante"), ("RA IX", "Ceilândia"),
@@ -95,9 +37,31 @@ with app.app_context():
         ("RA XXXI", "Fercal"), ("RA XXXII", "Sol Nascente e Pôr do Sol"),
         ("RA XXXIII", "Arniqueira"), ("RA XXXIV", "Arapoanga"), ("RA XXXV", "Água Quente")
     ]
-    for codigo, nome in ras_completas:
-        if not RegiaoAdministrativa.query.filter_by(codigo=codigo).first():
-            db.session.add(RegiaoAdministrativa(codigo=codigo, nome=nome))
+    for cod, nome in ras:
+        db.session.add(RegiaoAdministrativa(codigo=cod, nome=nome))
+
+    demandas = [
+        "Tapa-buraco", "Boca de Lobo", "Bueiro", "Calçada", "Estacionamentos",
+        "Galeria de Águas Pluviais", "Jardim", "Mato Alto", "Meio-fio", "Parque Infantil",
+        "Passagem Subterrânea", "Passarela", "Pisos Articulados", "Pista de Skate",
+        "Ponto de Encontro Comunitário (PEC)", "Praça", "Quadra de Esporte", "Rampa",
+        "Alambrado (Cercamento)", "Implantação (calçada, quadra, praça, estacionamento etc.)",
+        "Recapeamento Asfáltico", "Poda / Supressão de Árvore", "Doação de Mudas"
+    ]
+    for d in demandas:
+        db.session.add(Demanda(nome=d))
+
+    status = [
+        "Enviado à Diretoria das Cidades",
+        "Enviado à Diretoria de Obras",
+        "Devolvido à RA de origem",
+        "Improcedente - tramitação pelo SGIA",
+        "Improcedente - necessita de orçamento próprio",
+        "Improcedente - cronograma próprio da diretoria",
+        "Concluído"
+    ]
+    for s in status:
+        db.session.add(Status(nome=s))
 
     db.session.commit()
-    print("🚀 Banco de dados populado com sucesso!")
+    print("✅ Dados iniciais inseridos com sucesso.")
