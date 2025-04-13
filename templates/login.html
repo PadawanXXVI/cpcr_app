@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - Sistema CPCR</title>
+  <title>Login - Sistema da Central de Relacionamento</title>
+  <meta name="description" content="Área de login do sistema interno da Central de Relacionamento da NOVACAP.">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  <div class="card">
-    <h2>Login no Sistema CPCR</h2>
+  <main class="card">
+    <h1>Login no Sistema da Central de Relacionamento</h1>
 
     <form method="POST" action="{{ url_for('login') }}">
       <label for="usuario">Nome de Usuário:</label>
@@ -21,11 +22,12 @@
     </form>
 
     <p class="link-secundario">
-      <a href="{{ url_for('recuperar_acesso') }}">Esqueci minha senha</a>
-    </p>
-    <p class="link-secundario">
       <a href="{{ url_for('cadastrar_usuario') }}">Criar uma conta</a>
     </p>
-  </div>
+
+    <div style="margin-top: 1.5rem; text-align: center;">
+      <a href="{{ url_for('index') }}" class="btn-secondary">← Voltar ao Início</a>
+    </div>
+  </main>
 </body>
 </html>

@@ -1,47 +1,34 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import mysql.connector
 from werkzeug.security import generate_password_hash, check_password_hash
+from modelos import db, Usuario, Processo, Movimentacao, Status, Demanda, RegiaoAdministrativa
 from configuracoes import DevelopmentConfig
-from scripts.utils import gerar_senha_provisoria, enviar_email, gerar_token_email, verificar_token_email
+from utils import criar_log
 from functools import wraps
-
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
+db.init_app(app)
 
-# Conexão com o banco de dados
-conn = mysql.connector.connect(
-    host=app.config['MYSQL_HOST'],
-    user=app.config['MYSQL_USER'],
-    password=app.config['MYSQL_PASSWORD'],
-    database=app.config['MYSQL_DATABASE']
-)
-cursor = conn.cursor(dictionary=True)
+# -------------------------
+# Decorators
+# -------------------------
 
-# Decorador: redireciona para troca de senha se for provisória
-def verificar_senha_provisoria(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'id_usuario' in session:
-            cursor.execute("SELECT senha_provisoria FROM usuarios WHERE id_usuario = %s", (session['id_usuario'],))
-            resultado = cursor.fetchone()
-            if resultado and resultado['senha_provisoria']:
-                return redirect(url_for('trocar_senha'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-# Decorador: exige login ativo
 def login_required(f):
     @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'usuario' not in session:
+    def decorated(*args, **kwargs):
+        if 'id_usuario' not in session:
             return redirect(url_for('login'))
         return f(*args, **kwargs)
-    return decorated_function
+    return decorated
+
+# -------------------------
+# Rotas
+# -------------------------
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -49,347 +36,215 @@ def login():
         usuario = request.form['usuario']
         senha = request.form['senha']
 
-        cursor.execute("SELECT * FROM usuarios WHERE usuario=%s", (usuario,))
-        user = cursor.fetchone()
-
-        if user and check_password_hash(user['senha_hash'], senha):
-            if not user.get('aprovado', True):
+        user = Usuario.query.filter_by(usuario=usuario).first()
+        if user and check_password_hash(user.senha_hash, senha):
+            if not user.aprovado:
                 return "Usuário ainda não aprovado pelo administrador."
 
-            session['usuario'] = user['usuario']
-            session['id_usuario'] = user['id_usuario']
+            if not user.ativo:
+                return "Usuário inativo. Entre em contato com a administração."
 
-            if user.get('senha_provisoria', False):
-                return redirect(url_for('trocar_senha'))
+            session['usuario'] = user.usuario
+            session['id_usuario'] = user.id_usuario
 
-            return redirect(url_for('cadastro_processo'))
+            criar_log("Login realizado com sucesso", id_usuario=user.id_usuario)
+            return redirect(url_for('dashboard'))
 
-        return "Usuário ou senha incorretos"
-    return render_template('login.html')
+        return "Usuário ou senha incorretos."
+
+    return render_template("login.html")
 
 @app.route('/logout')
 def logout():
+    criar_log("Logout efetuado", id_usuario=session.get("id_usuario"))
     session.clear()
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    total_processos = Processo.query.count()
+    total_secre = Processo.query.filter_by(tramite_inicial="SECRE").count()
+    total_cr = Processo.query.filter_by(tramite_inicial="CR").count()
+    total_do = Processo.query.filter_by(diretoria_destino="DO").count()
+    total_dc = Processo.query.filter_by(diretoria_destino="DC").count()
+    total_sgia = Processo.query.filter(Processo.tipo_demanda.like('%Árvore%')).count()
+    total_improcedentes = Processo.query.filter(Processo.status_demanda.like('%Improcedente%')).count()
+    total_concluidos = Processo.query.filter_by(status_demanda="Concluído").count()
+
+    return render_template("dashboard.html",
+        total_processos=total_processos,
+        total_secre=total_secre,
+        total_cr=total_cr,
+        total_do=total_do,
+        total_dc=total_dc,
+        total_sgia=total_sgia,
+        total_improcedentes=total_improcedentes,
+        total_concluidos=total_concluidos
+    )
 
 @app.route('/cadastrar_usuario', methods=['GET', 'POST'])
 def cadastrar_usuario():
     if request.method == 'POST':
-        nome_completo = request.form['nome_completo']
-        nome_usuario = request.form['nome_usuario']
+        nome = request.form['nome_completo']
+        usuario = request.form['nome_usuario']
         email = request.form['email']
-        numero_celular = request.form['numero_celular']
-        senha = request.form['senha']
-        senha_hash = generate_password_hash(senha)
+        celular = request.form['numero_celular']
+        senha = generate_password_hash(request.form['senha'])
 
-        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (nome_usuario,))
-        if cursor.fetchone():
-            return "Nome de usuário já está em uso. Escolha outro."
+        if Usuario.query.filter_by(usuario=usuario).first():
+            return "Nome de usuário já está em uso."
 
-        try:
-            cursor.execute('''
-                INSERT INTO usuarios (nome, usuario, email, numero_celular, senha_hash, aprovado)
-                VALUES (%s, %s, %s, %s, %s, FALSE)
-            ''', (nome_completo, nome_usuario, email, numero_celular, senha_hash))
-            conn.commit()
-            return "Usuário cadastrado com sucesso. Aguarde autorização do administrador."
-        except mysql.connector.Error as err:
-            return f"Erro ao cadastrar usuário: {err}"
+        novo = Usuario(
+            nome=nome,
+            usuario=usuario,
+            email=email,
+            numero_celular=celular,
+            senha_hash=senha,
+            aprovado=False
+        )
+        db.session.add(novo)
+        db.session.commit()
 
-    return render_template('cadastro_usuario.html')
+        criar_log(f"Usuário cadastrado: {usuario}", id_usuario=novo.id_usuario)
+        return "Usuário cadastrado. Aguarde autorização do administrador."
 
-@app.route('/recuperar_acesso', methods=['GET', 'POST'])
-def recuperar_acesso():
+    return render_template("cadastro_usuario.html")
+
+@app.route('/trocar_senha', methods=['GET', 'POST'])
+@login_required
+def trocar_senha():
     if request.method == 'POST':
-        nome = request.form['nome_completo'].strip()
-        email = request.form['email'].strip()
-        nova_senha = request.form['nova_senha']
+        nova = request.form['nova_senha']
         confirmar = request.form['confirmar_senha']
 
-        if nova_senha != confirmar:
-            mensagem = "As senhas não coincidem. Tente novamente."
-            return render_template("recuperacao.html", mensagem=mensagem)
-
-        # Verifica se existe usuário com nome + email
-        cursor.execute("""
-            SELECT * FROM usuarios WHERE nome = %s AND email = %s
-        """, (nome, email))
-        usuario = cursor.fetchone()
-
-        if not usuario:
-            mensagem = "Usuário não encontrado com os dados informados."
-            return render_template("recuperacao.html", mensagem=mensagem)
-
-        # Atualiza a senha
-        nova_hash = generate_password_hash(nova_senha)
-        cursor.execute("""
-            UPDATE usuarios
-            SET senha_hash = %s, senha_provisoria = FALSE
-            WHERE id_usuario = %s
-        """, (nova_hash, usuario['id_usuario']))
-        conn.commit()
-
-        return render_template("recuperacao.html", mensagem="Senha redefinida com sucesso. Você já pode fazer login.")
-
-    return render_template("recuperacao.html")
-
-@app.route('/redefinir_senha/<token>', methods=['GET', 'POST'])
-def redefinir_senha(token):
-    email = verificar_token_email(token)
-    if not email:
-        return "Este link expirou ou é inválido."
-
-    if request.method == 'POST':
-        nova_senha = request.form['nova_senha']
-        confirmar = request.form['confirmar_senha']
-
-        if nova_senha != confirmar:
+        if nova != confirmar:
             return render_template("trocar_senha.html", mensagem="As senhas não coincidem.")
 
-        nova_hash = generate_password_hash(nova_senha)
-        cursor.execute("""
-            UPDATE usuarios SET senha_hash = %s, senha_provisoria = FALSE
-            WHERE email = %s
-        """, (nova_hash, email))
-        conn.commit()
+        usuario = Usuario.query.get(session['id_usuario'])
+        usuario.senha_hash = generate_password_hash(nova)
+        db.session.commit()
 
-        return redirect(url_for('login'))
+        criar_log("Senha alterada com sucesso", id_usuario=usuario.id_usuario)
+        return redirect(url_for('dashboard'))
 
     return render_template("trocar_senha.html")
 
-@app.route('/trocar_senha', methods=['GET', 'POST'])
-def trocar_senha():
-    if 'id_usuario' not in session:
-        return redirect(url_for('login'))
-
-    if request.method == 'POST':
-        nova_senha = request.form['nova_senha']
-        confirmar = request.form['confirmar_senha']
-
-        if nova_senha != confirmar:
-            return render_template('trocar_senha.html', mensagem="As senhas não coincidem.")
-
-        nova_hash = generate_password_hash(nova_senha)
-        cursor.execute("""
-            UPDATE usuarios SET senha_hash = %s, senha_provisoria = FALSE
-            WHERE id_usuario = %s
-        """, (nova_hash, session['id_usuario']))
-        conn.commit()
-
-        return redirect(url_for('index'))
-
-    return render_template('trocar_senha.html')
-
 @app.route('/cadastro_processo', methods=['GET', 'POST'])
-@verificar_senha_provisoria
+@login_required
 def cadastro_processo():
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
-
     if request.method == 'POST':
         numero = request.form['numero_processo'].strip()
-
-        # Verifica se o processo já está cadastrado
-        cursor.execute("SELECT id_processo FROM processos WHERE numero_processo = %s", (numero,))
-        existente = cursor.fetchone()
+        existente = Processo.query.filter_by(numero_processo=numero).first()
 
         if existente:
-            flash("⚠️ Este número de processo já está cadastrado. Redirecionando para atualização...", "warning")
-            return redirect(url_for('atualizar_processo', id=existente['id_processo']))
+            flash("⚠️ Processo já cadastrado. Redirecionando...", "warning")
+            return redirect(url_for('atualizar_processo', id=existente.id_processo))
 
-        # Coleta dados do formulário
-        dados = (
-            numero,
-            request.form['data_criacao_ra'],
-            request.form['data_entrada_cpcr'],
-            request.form['admin_regional'],
-            request.form['tipo_demanda'],
-            request.form['vistoria_completa'],
-            request.form['diretoria_destino'],
-            request.form['status_demanda'],
-            request.form['descricao_processo']
+        processo = Processo(
+            numero_processo=numero,
+            data_criacao_ra=request.form['data_criacao_ra'],
+            tramite_inicial=request.form['tramite_inicial'],
+            data_entrada=request.form['data_entrada'],
+            admin_regional=request.form['admin_regional'],
+            tipo_demanda=request.form['tipo_demanda'],
+            vistoria_completa=request.form['vistoria_completa'],
+            diretoria_destino=request.form['diretoria_destino'],
+            status_demanda=request.form['status_demanda'],
+            descricao_processo=request.form['descricao_processo']
         )
+        db.session.add(processo)
 
-        cursor.execute('''
-            INSERT INTO processos
-            (numero_processo, data_criacao_ra, data_entrada_cpcr, admin_regional,
-             tipo_demanda, vistoria_completa, diretoria_destino, status_demanda, descricao_processo)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', dados)
-        conn.commit()
+        movimentacao = Movimentacao(
+            id_usuario=session['id_usuario'],
+            processo=processo,
+            status_movimentado=processo.status_demanda,
+            observacoes="Cadastro inicial"
+        )
+        db.session.add(movimentacao)
+        db.session.commit()
 
+        criar_log(f"Cadastro de novo processo: {numero}", id_usuario=session['id_usuario'])
         flash("✅ Processo cadastrado com sucesso!", "success")
         return redirect(url_for('cadastro_processo'))
 
-    # Listas para os selects
-    lista_ras = [
-        "RA I - Plano Piloto", "RA II - Gama", "RA III - Taguatinga", "RA IV - Brazlândia", "RA V - Sobradinho",
-        "RA VI - Planaltina", "RA VII - Paranoá", "RA VIII - Núcleo Bandeirante", "RA IX - Ceilândia", "RA X - Guará",
-        "RA XI - Cruzeiro", "RA XII - Samambaia", "RA XIII - Santa Maria", "RA XIV - São Sebastião", "RA XV - Recanto das Emas",
-        "RA XVI - Lago Sul", "RA XVII - Riacho Fundo", "RA XVIII - Lago Norte", "RA XIX - Candangolândia", "RA XX - Águas Claras",
-        "RA XXI - Riacho Fundo II", "RA XXII - Sudoeste/Octogonal", "RA XXIII - Varjão", "RA XXIV - Park Way",
-        "RA XXV - SCIA/Estrutural", "RA XXVI - Sobradinho II", "RA XXVII - Jardim Botânico", "RA XXVIII - Itapoã",
-        "RA XXIX - SIA", "RA XXX - Vicente Pires", "RA XXXI - Fercal", "RA XXXII - Sol Nascente e Pôr do Sol",
-        "RA XXXIII - Arniqueira", "RA XXXIV - Arapoanga", "RA XXXV - Água Quente"
-    ]
-
-    lista_demandas = [
-        "Tapa-buraco", "Boca de Lobo", "Bueiro", "Calçada", "Estacionamentos",
-        "Galeria de Águas Pluviais", "Jardim", "Mato Alto", "Meio-fio", "Parque Infantil",
-        "Passagem Subterrânea", "Passarela", "Pisos Articulados", "Pista de Skate",
-        "Ponto de Encontro Comunitário (PEC)", "Praça", "Quadra de Esporte", "Rampa",
-        "Alambrado (Cercamento)", "Implantação (calçada, quadra, praça, estacionamento etc.)",
-        "Recapeamento Asfáltico", "Poda / supressão de árvore", "Doação de mudas"
-    ]
-
-    lista_status = [
-        "Em atendimento", "Atendido", "Enviado à Diretoria das Cidades",
-        "Enviado à Diretoria de Obras", "Devolvido à RA de origem",
-        "Improcedente - tramitação pelo SGIA", "Improcedente - necessita de orçamento próprio",
-        "Concluído"
-    ]
-
-    totais = {
-        "total_geral": 0,
-        "devolvidos_ra": 0,
-        "sgias": 0,
-        "implantacoes": 0,
-        "enviados_dc": 0,
-        "enviados_do": 0,
-        "concluidos": 0
-    }
+    ras = [f"{ra.codigo} - {ra.nome}" for ra in RegiaoAdministrativa.query.order_by("codigo")]
+    demandas = [d.nome for d in Demanda.query.order_by("nome")]
+    status = [s.nome for s in Status.query.order_by("nome")]
 
     return render_template("cadastro_processo.html",
-                           lista_ras=lista_ras,
-                           lista_demandas=lista_demandas,
-                           lista_status=lista_status,
-                           totais=totais)
-
-@app.route('/verificar_processo', methods=['GET', 'POST'])
-def verificar_processo():
-    numero = request.values.get('numero_processo', '').strip()
-
-    cursor.execute("SELECT id_processo FROM processos WHERE numero_processo = %s", (numero,))
-    processo = cursor.fetchone()
-
-    if processo:
-        return {'existe': True, 'id': processo['id_processo']}
-    else:
-        return {'existe': False}
-
+        lista_ras=ras,
+        lista_demandas=demandas,
+        lista_status=status
+    )
 
 @app.route('/atualizar_processo/<int:id>', methods=['GET', 'POST'])
-@verificar_senha_provisoria
 @login_required
 def atualizar_processo(id):
-    cursor.execute("SELECT * FROM processos WHERE id_processo = %s", (id,))
-    processo = cursor.fetchone()
-
-    if not processo:
-        return "Processo não encontrado", 404
+    processo = Processo.query.get_or_404(id)
 
     if request.method == 'POST':
         novo_status = request.form['status_demanda']
-        nova_diretoria = request.form['diretoria_destino']
         observacoes = request.form['observacoes']
-        id_usuario = session['id_usuario']
 
-        cursor.execute("""
-            UPDATE processos SET status_demanda = %s, diretoria_destino = %s,
-            data_ultima_atualizacao = NOW() WHERE id_processo = %s
-        """, (novo_status, nova_diretoria, id))
+        processo.status_demanda = novo_status
+        processo.data_ultima_atualizacao = datetime.utcnow()
 
-        cursor.execute("""
-            INSERT INTO movimentacoes (id_processo, data_movimentacao, status_movimentado, observacoes, id_usuario)
-            VALUES (%s, NOW(), %s, %s, %s)
-        """, (id, novo_status, observacoes, id_usuario))
+        db.session.add(Movimentacao(
+            id_processo=processo.id_processo,
+            id_usuario=session['id_usuario'],
+            status_movimentado=novo_status,
+            observacoes=observacoes
+        ))
+        db.session.commit()
 
-        conn.commit()
+        criar_log(f"Status atualizado para '{novo_status}' | ID Processo: {id}", id_usuario=session['id_usuario'])
         return redirect(url_for('atualizar_processo', id=id))
 
-    lista_status = [ ... ]
-    lista_diretorias = ["DC", "DO", "N/A"]
+    status = [s.nome for s in Status.query.order_by("nome")]
+    diretorias = ["DC", "DO"]
 
-    cursor.execute("""
-        SELECT m.data_movimentacao, m.status_movimentado, m.observacoes, u.nome AS responsavel
-        FROM movimentacoes m
-        JOIN usuarios u ON m.id_usuario = u.id_usuario
-        WHERE m.id_processo = %s
-        ORDER BY m.data_movimentacao DESC
-    """, (id,))
-    historico = cursor.fetchall()
+    historico = Movimentacao.query.filter_by(id_processo=id).order_by(Movimentacao.data_movimentacao.desc()).all()
 
     return render_template("atualizar_processo.html",
-                           processo=processo,
-                           lista_status=lista_status,
-                           lista_diretorias=lista_diretorias,
-                           historico=historico)
+        processo=processo,
+        lista_status=status,
+        lista_diretorias=diretorias,
+        historico=historico
+    )
 
 @app.route('/visualizacao')
-@verificar_senha_provisoria
+@login_required
 def visualizacao():
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
+    filtros = {
+        "numero": request.args.get("numero_processo", ""),
+        "ra": request.args.get("admin_regional", ""),
+        "demanda": request.args.get("tipo_demanda", ""),
+        "status": request.args.get("status_demanda", "")
+    }
 
-    # Filtros
-    numero = request.args.get('numero_processo', '')
-    ra = request.args.get('admin_regional', '')
-    demanda = request.args.get('tipo_demanda', '')
-    status = request.args.get('status_demanda', '')
+    query = Processo.query
+    if filtros["numero"]:
+        query = query.filter(Processo.numero_processo.like(f"%{filtros['numero']}%"))
+    if filtros["ra"]:
+        query = query.filter(Processo.admin_regional == filtros["ra"])
+    if filtros["demanda"]:
+        query = query.filter(Processo.tipo_demanda == filtros["demanda"])
+    if filtros["status"]:
+        query = query.filter(Processo.status_demanda == filtros["status"])
 
-    # Query base
-    query = "SELECT * FROM processos WHERE 1=1"
-    params = []
+    processos = query.order_by(Processo.data_entrada.desc()).all()
 
-    if numero:
-        query += " AND numero_processo LIKE %s"
-        params.append(f"%{numero}%")
-    if ra:
-        query += " AND admin_regional = %s"
-        params.append(ra)
-    if demanda:
-        query += " AND tipo_demanda = %s"
-        params.append(demanda)
-    if status:
-        query += " AND status_demanda = %s"
-        params.append(status)
+    ras = [f"{ra.codigo} - {ra.nome}" for ra in RegiaoAdministrativa.query.order_by("codigo")]
+    demandas = [d.nome for d in Demanda.query.order_by("nome")]
+    status = [s.nome for s in Status.query.order_by("nome")]
 
-    cursor.execute(query, tuple(params))
-    processos = cursor.fetchall()
-
-    # Reutilizamos listas para filtros (já usadas em cadastro_processo)
-    lista_ras = [
-        "RA I - Plano Piloto", "RA II - Gama", "RA III - Taguatinga", "RA IV - Brazlândia", "RA V - Sobradinho",
-        "RA VI - Planaltina", "RA VII - Paranoá", "RA VIII - Núcleo Bandeirante", "RA IX - Ceilândia", "RA X - Guará",
-        "RA XI - Cruzeiro", "RA XII - Samambaia", "RA XIII - Santa Maria", "RA XIV - São Sebastião", "RA XV - Recanto das Emas",
-        "RA XVI - Lago Sul", "RA XVII - Riacho Fundo", "RA XVIII - Lago Norte", "RA XIX - Candangolândia", "RA XX - Águas Claras",
-        "RA XXI - Riacho Fundo II", "RA XXII - Sudoeste/Octogonal", "RA XXIII - Varjão", "RA XXIV - Park Way",
-        "RA XXV - SCIA/Estrutural", "RA XXVI - Sobradinho II", "RA XXVII - Jardim Botânico", "RA XXVIII - Itapoã",
-        "RA XXIX - SIA", "RA XXX - Vicente Pires", "RA XXXI - Fercal", "RA XXXII - Sol Nascente e Pôr do Sol",
-        "RA XXXIII - Arniqueira", "RA XXXIV - Arapoanga", "RA XXXV - Água Quente"
-    ]
-
-    lista_demandas = [
-        "Tapa-buraco", "Boca de Lobo", "Bueiro", "Calçada", "Estacionamentos",
-        "Galeria de Águas Pluviais", "Jardim", "Mato Alto", "Meio-fio", "Parque Infantil",
-        "Passagem Subterrânea", "Passarela", "Pisos Articulados", "Pista de Skate",
-        "Ponto de Encontro Comunitário (PEC)", "Praça", "Quadra de Esporte", "Rampa",
-        "Alambrado (Cercamento)", "Implantação (calçada, quadra, praça, estacionamento etc.)",
-        "Recapeamento Asfáltico", "Poda / supressão de árvore", "Doação de mudas"
-    ]
-
-    lista_status = [
-        "Em atendimento", "Atendido", "Enviado à Diretoria das Cidades",
-        "Enviado à Diretoria de Obras", "Devolvido à RA de origem",
-        "Improcedente - tramitação pelo SGIA", "Improcedente - necessita de orçamento próprio",
-        "Concluído"
-    ]
-
-    return render_template('visualizacao.html',
-                           processos=processos,
-                           lista_ras=lista_ras,
-                           lista_demandas=lista_demandas,
-                           lista_status=lista_status)
+    return render_template("visualizacao.html",
+        processos=processos,
+        lista_ras=ras,
+        lista_demandas=demandas,
+        lista_status=status
+    )
 
 if __name__ == '__main__':
-    app.run(host='10.115.14.149', port=5000, debug=True)
+    app.run(debug=True)

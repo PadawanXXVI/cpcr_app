@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Criar Conta - Sistema CPCR</title>
+  <title>Criar Conta - Sistema da Central de Relacionamento</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
   <div class="card">
-    <h2>Criar Conta</h2>
+    <h1>Criar Conta</h1>
+    <p>Preencha os dados abaixo para solicitar acesso ao sistema.</p>
+    <p><strong>Importante:</strong> Seu cadastro será analisado por um administrador antes da liberação.</p>
 
     <form method="POST" action="{{ url_for('cadastrar_usuario') }}">
       <label for="nome_completo">Nome Completo:</label>
@@ -30,7 +32,7 @@
     </form>
 
     <p class="link-secundario">
-      <a href="{{ url_for('login') }}">Já tenho uma conta</a>
+      <a href="{{ url_for('login') }}">← Já tenho uma conta</a>
     </p>
   </div>
 </body>
