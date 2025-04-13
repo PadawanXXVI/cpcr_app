@@ -10,7 +10,7 @@ db.init_app(app)
 with app.app_context():
     print("🔄 Iniciando criação do banco de dados 'cr_novacap'...")
 
-    # Ordem correta das tabelas (sem deletar `usuarios`)
+    # Tabelas que podem ser removidas (exceto usuários)
     tabelas_para_apagar = [Movimentacao, Processo, LogSistema, Status, Demanda, RegiaoAdministrativa]
 
     for tabela in tabelas_para_apagar:
@@ -21,7 +21,6 @@ with app.app_context():
     db.create_all()
     print("✅ Tabelas criadas com sucesso.")
 
-    # Inserção apenas se as tabelas estiverem vazias
     if not RegiaoAdministrativa.query.first():
         ras = [
             ("RA I", "Plano Piloto"), ("RA II", "Gama"), ("RA III", "Taguatinga"),
@@ -41,27 +40,45 @@ with app.app_context():
             db.session.add(RegiaoAdministrativa(codigo=cod, nome=nome))
 
     if not Demanda.query.first():
-        demandas = [
-            "Tapa-buraco", "Boca de Lobo", "Bueiro", "Calçada", "Estacionamentos",
-            "Galeria de Águas Pluviais", "Jardim", "Mato Alto", "Meio-fio", "Parque Infantil",
-            "Passagem Subterrânea", "Passarela", "Pisos Articulados", "Pista de Skate",
-            "Ponto de Encontro Comunitário (PEC)", "Praça", "Quadra de Esporte", "Rampa",
-            "Alambrado (Cercamento)", "Implantação (calçada, quadra, praça, estacionamento etc.)",
-            "Recapeamento Asfáltico", "Poda / Supressão de Árvore", "Doação de Mudas"
-        ]
+        demandas = sorted([
+            "Alambrado (Cercamento)",
+            "Boca de Lobo",
+            "Bueiro",
+            "Calçada",
+            "Doação de Mudas",
+            "Estacionamentos",
+            "Galeria de Água Potável",
+            "Galeria de Águas Pluviais",
+            "Implantação (calçada, quadra, praça, estacionamento etc.)",
+            "Jardim",
+            "Mato Alto",
+            "Meio-fio",
+            "Parque Infantil",
+            "Passagem Subterrânea",
+            "Passarela",
+            "Pisos Articulados",
+            "Pista de Skate",
+            "Poda / Supressão de Árvore",
+            "Ponto de Encontro Comunitário (PEC)",
+            "Praça",
+            "Quadra de Esporte",
+            "Rampa",
+            "Recapeamento Asfáltico",
+            "Tapa-buraco"
+        ])
         for d in demandas:
             db.session.add(Demanda(nome=d))
 
     if not Status.query.first():
-        status = [
+        status = sorted([
+            "Concluído",
+            "Devolvido à RA de origem",
             "Enviado à Diretoria das Cidades",
             "Enviado à Diretoria de Obras",
-            "Devolvido à RA de origem",
-            "Improcedente - tramitação pelo SGIA",
-            "Improcedente - necessita de orçamento próprio",
-            "Improcedente - cronograma próprio da diretoria",
-            "Concluído"
-        ]
+            "Improcedente - serviço de implantação",
+            "Improcedente - serviço de natureza continuada",
+            "Improcedente - tramitação pelo SGIA"
+        ])
         for s in status:
             db.session.add(Status(nome=s))
 
