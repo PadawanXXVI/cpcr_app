@@ -63,6 +63,10 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    # Obtém o usuário logado
+    usuario = Usuario.query.filter_by(id_usuario=session['id_usuario']).first()
+
+    # Contagem de processos
     total_processos = Processo.query.count()
     total_secre = Processo.query.filter_by(tramite_inicial="SECRE").count()
     total_cr = Processo.query.filter_by(tramite_inicial="CR").count()
@@ -72,6 +76,11 @@ def dashboard():
     total_improcedentes = Processo.query.filter(Processo.status_demanda.like('%Improcedente%')).count()
     total_concluidos = Processo.query.filter_by(status_demanda="Concluído").count()
 
+    # Apenas admins verão usuários pendentes
+    pendentes = 0
+    if usuario.is_admin:
+        pendentes = Usuario.query.filter_by(aprovado=False).count()
+
     return render_template("dashboard.html",
         total_processos=total_processos,
         total_secre=total_secre,
@@ -80,7 +89,9 @@ def dashboard():
         total_dc=total_dc,
         total_sgia=total_sgia,
         total_improcedentes=total_improcedentes,
-        total_concluidos=total_concluidos
+        total_concluidos=total_concluidos,
+        pendentes=pendentes,
+        usuario_logado=usuario.usuario  # se necessário para mostrar no layout
     )
 
 @app.route('/cadastrar_usuario', methods=['GET', 'POST'])
