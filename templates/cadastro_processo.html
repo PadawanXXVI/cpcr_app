@@ -106,38 +106,31 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const campoNumero = document.getElementById("numero_processo");
-        const mensagem = document.createElement("small");
-        mensagem.style.color = "red";
-        campoNumero.parentNode.appendChild(mensagem);
+      const campoNumero = document.getElementById("numero_processo");
   
-        campoNumero.addEventListener("blur", function () {
-            const numero = campoNumero.value.trim();
-            mensagem.textContent = "";
+      campoNumero.addEventListener("blur", function () {
+        const numero = campoNumero.value.trim();
   
-            if (numero.length === 0) return;
+        if (!numero) return;
   
-            fetch("/verificar_processo", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ numero_processo: numero }),
-            })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.status === "existe") {
-                    // Redirecionamento automático
-                    window.location.href = `/atualizar_processo/${data.id}`;
-                } else if (data.status === "disponivel") {
-                    mensagem.style.color = "green";
-                    mensagem.textContent = "✅ Número de processo disponível.";
-                }
-            })
-            .catch((err) => {
-                console.error("Erro ao verificar processo:", err);
-            });
+        fetch("/verificar_processo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ numero_processo: numero })
+        })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "existe") {
+            // Redireciona imediatamente para a tela de atualização
+            window.location.href = `/atualizar_processo/${data.id}`;
+          }
+        })
+        .catch((err) => {
+          console.error("Erro ao verificar processo:", err);
         });
+      });
     });
   </script>
     
