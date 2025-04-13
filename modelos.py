@@ -18,6 +18,7 @@ class Usuario(db.Model):
     senha_provisoria = db.Column(db.Boolean, default=False)
     aprovado = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
+    ativo = db.Column(db.Boolean, default=True)  # Novo campo para bloqueio de acesso
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
 
     movimentacoes = db.relationship('Movimentacao', backref='usuario', lazy=True)
@@ -84,7 +85,6 @@ class LogSistema(db.Model):
 # ---------------------
 # TABELAS DINÂMICAS: STATUS / DEMANDAS / RAs
 # ---------------------
-
 class Status(db.Model):
     __tablename__ = 'status'
 
