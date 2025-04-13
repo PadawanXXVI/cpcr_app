@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from flask import Flask
 from configuracoes import DevelopmentConfig
 from modelos import db, Processo, Movimentacao, LogSistema, Status, Demanda, RegiaoAdministrativa
