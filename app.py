@@ -161,20 +161,22 @@ def cadastro_processo():
             vistoria_completa=request.form['vistoria_completa'],
             diretoria_destino=request.form['diretoria_destino'],
             status_demanda=request.form['status_demanda'],
-            descricao_processo=request.form['descricao_processo']
+            descricao_processo=request.form['descricao_processo'],
+            data_ultima_atualizacao=request.form['data_cadastro_processo']  # novo campo utilizado
         )
         db.session.add(processo)
 
         movimentacao = Movimentacao(
-            id_usuario=request.form['responsavel'],
+            id_usuario=request.form['responsavel_cadastro'],
             processo=processo,
             status_movimentado=processo.status_demanda,
-            observacoes="Cadastro inicial"
+            observacoes="Cadastro inicial",
+            data_movimentacao=request.form['data_cadastro_processo']  # novo campo utilizado
         )
         db.session.add(movimentacao)
         db.session.commit()
 
-        criar_log(f"Cadastro de novo processo: {numero}", id_usuario=session['id_usuario'])
+        criar_log(f"Cadastro de novo processo: {numero}", id_usuario=request.form['responsavel_cadastro'])
         flash("✅ Processo cadastrado com sucesso!", "success")
         return redirect(url_for('cadastro_processo'))
 
