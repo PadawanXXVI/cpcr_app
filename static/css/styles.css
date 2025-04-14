@@ -214,9 +214,17 @@ label {
 .acoes-dashboard {
   margin-top: 2.5rem;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   gap: 1rem;
-  justify-content: center;
+}
+
+.acoes-dashboard .btn-primary,
+.acoes-dashboard .btn-secundario,
+.acoes-dashboard .btn-terciario {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
 }
 
 /* Power BI embed */

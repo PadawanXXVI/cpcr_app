@@ -20,41 +20,45 @@
 
     <div class="cards-dashboard">
 
-      <!-- Linha 1: Total e Atendidos -->
+      <!-- Total e Atendidos -->
       <div class="card-info">
         <h2>Total de Processos</h2>
         <p>{{ total_processos }}</p>
       </div>
+
       <div class="card-info">
         <h2>Atendidos</h2>
         <p>{{ total_atendidos }}</p>
       </div>
 
-      <!-- Linha 2: Início do processo -->
+      <!-- Iniciados -->
       <div class="card-info">
         <h2>Iniciados pela SECRE</h2>
         <p>{{ total_secre }}</p>
       </div>
+
       <div class="card-info">
         <h2>Iniciados pela CR</h2>
         <p>{{ total_cr }}</p>
       </div>
 
-      <!-- Linha 3: Diretorias -->
+      <!-- Diretorias -->
       <div class="card-info">
         <h2>Diretoria das Cidades (DC)</h2>
         <p>{{ total_dc }}</p>
       </div>
+
       <div class="card-info">
         <h2>Diretoria de Obras (DO)</h2>
         <p>{{ total_do }}</p>
       </div>
 
-      <!-- Linha 4: SGIA e devoluções -->
+      <!-- SGIA e devoluções -->
       <div class="card-info">
         <h2>Processos SGIA</h2>
         <p>{{ total_sgia }}</p>
       </div>
+
       <div class="card-info">
         <h2>Devolvidos (Sem vistoria/imagem)</h2>
         <p>{{ total_devolvidos_vistoria }}</p>
@@ -64,6 +68,7 @@
         <h2>Devolvidos (Implantação)</h2>
         <p>{{ total_devolvidos_implantacao }}</p>
       </div>
+
       <div class="card-info">
         <h2>Devolvidos (Serviço contínuo)</h2>
         <p>{{ total_devolvidos_continuado }}</p>
@@ -71,10 +76,10 @@
 
     </div>
 
-    <div class="acoes-dashboard">
-      <a href="{{ url_for('cadastro_processo') }}" class="btn-primary">Cadastrar Novo Processo</a>
-      <a href="{{ url_for('visualizacao') }}" class="btn-secundario">Visualizar Processos</a>
-      <a href="{{ url_for('index') }}" class="btn-terciario">Sair do Sistema</a>
+    <div class="acoes-dashboard" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 2rem;">
+      <a href="{{ url_for('cadastro_processo') }}" class="btn-primary" style="width: 100%; max-width: 400px;">Cadastrar Novo Processo</a>
+      <a href="{{ url_for('visualizacao') }}" class="btn-secundario" style="width: 100%; max-width: 400px;">Visualizar Processos</a>
+      <a href="{{ url_for('index') }}" class="btn-terciario" style="width: 100%; max-width: 400px;">Sair do Sistema</a>
     </div>
 
     <section class="bi-section">
