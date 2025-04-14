@@ -100,18 +100,8 @@
       </div>
 
       <div class="form-group">
-        <label for="responsavel_cadastro">Responsável pelo Cadastro</label>
-        <select id="responsavel_cadastro" name="responsavel_cadastro" required>
-          <option value="">Selecione</option>
-          {% for usuario in lista_usuarios %}
-            <option value="{{ usuario.id_usuario }}">{{ usuario.nome }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="data_cadastro_processo">Data do Cadastro do Processo</label>
-        <input type="date" id="data_cadastro_processo" name="data_cadastro_processo" required>
+        <label for="data_cadastro">Data de Cadastro do Processo</label>
+        <input type="date" id="data_cadastro" name="data_cadastro" required>
       </div>
 
       <button type="submit" class="btn-primary">Cadastrar</button>

@@ -162,7 +162,7 @@ def cadastro_processo():
             diretoria_destino=request.form['diretoria_destino'],
             status_demanda=request.form['status_demanda'],
             descricao_processo=request.form['descricao_processo'],
-            data_ultima_atualizacao=request.form['data_cadastro_processo']  # novo campo utilizado
+            data_entrada_real=request.form['data_cadastro']
         )
         db.session.add(processo)
 
@@ -171,7 +171,7 @@ def cadastro_processo():
             processo=processo,
             status_movimentado=processo.status_demanda,
             observacoes="Cadastro inicial",
-            data_movimentacao=request.form['data_cadastro_processo']  # novo campo utilizado
+            data_atualizacao_real=request.form['data_cadastro']
         )
         db.session.add(movimentacao)
         db.session.commit()
@@ -183,7 +183,7 @@ def cadastro_processo():
     ras = [f"{ra.codigo} - {ra.nome}" for ra in RegiaoAdministrativa.query.order_by("codigo")]
     demandas = [d.nome for d in Demanda.query.order_by("nome")]
     status = [s.nome for s in Status.query.order_by("nome")]
-    usuarios = Usuario.query.filter_by(aprovado=True, ativo=True).order_by(Usuario.nome).all()
+    usuarios = Usuario.query.filter_by(ativo=True).order_by(Usuario.nome).all()
 
     return render_template("cadastro_processo.html",
         lista_ras=ras,
