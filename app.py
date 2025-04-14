@@ -161,18 +161,15 @@ def cadastro_processo():
             vistoria_completa=request.form['vistoria_completa'],
             diretoria_destino=request.form['diretoria_destino'],
             status_demanda=request.form['status_demanda'],
-            descricao_processo=request.form['descricao_processo'],
-            data_entrada_real=request.form['data_entrada_real']
+            descricao_processo=request.form['descricao_processo']
         )
         db.session.add(processo)
 
         movimentacao = Movimentacao(
-            id_usuario=session['id_usuario'],
+            id_usuario=request.form['responsavel'],
             processo=processo,
             status_movimentado=processo.status_demanda,
-            observacoes="Cadastro inicial",
-            data_movimentacao=request.form['data_entrada_real'],
-            data_registro=request.form['data_entrada_real']
+            observacoes="Cadastro inicial"
         )
         db.session.add(movimentacao)
         db.session.commit()
@@ -184,11 +181,13 @@ def cadastro_processo():
     ras = [f"{ra.codigo} - {ra.nome}" for ra in RegiaoAdministrativa.query.order_by("codigo")]
     demandas = [d.nome for d in Demanda.query.order_by("nome")]
     status = [s.nome for s in Status.query.order_by("nome")]
+    usuarios = Usuario.query.filter_by(aprovado=True, ativo=True).order_by(Usuario.nome).all()
 
     return render_template("cadastro_processo.html",
         lista_ras=ras,
         lista_demandas=demandas,
-        lista_status=status
+        lista_status=status,
+        lista_usuarios=usuarios
     )
 
 @app.route('/atualizar_processo/<int:id>', methods=['GET', 'POST'])
