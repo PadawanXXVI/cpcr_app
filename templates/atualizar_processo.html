@@ -1,27 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atualizar Processo - Central de Relacionamento</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <script>
-    function validarAtualizacao(event) {
-      const status = document.getElementById("status_demanda").value;
-      if (!status) {
-        alert("Selecione um novo status para o processo.");
-        event.preventDefault();
-        return false;
-      }
-      return true;
-    }
-  </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Atualizar Processo - Central de Relacionamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  <div class="card">
+  <main class="card">
     <h1>Atualizar Processo</h1>
 
-    <!-- Informações fixas do processo -->
+    <!-- Informações do processo -->
     <p><strong>Nº Processo:</strong> <span class="numero-processo">{{ processo.numero_processo }}</span></p>
     <p><strong>RA de Origem:</strong> {{ processo.admin_regional }}</p>
     <p><strong>Diretoria de Destino:</strong> {{ processo.diretoria_destino }}</p>
@@ -29,8 +18,8 @@
     <p><strong>Status Atual:</strong> {{ processo.status_demanda }}</p>
 
     <!-- Formulário de atualização -->
-    <form method="POST" onsubmit="return validarAtualizacao(event)">
-      <input type="hidden" name="responsavel" value="{{ usuario_logado }}">
+    <form method="POST">
+      <input type="hidden" name="id_processo" value="{{ processo.id_processo }}">
 
       <label for="status_demanda">Novo Status:</label>
       <select id="status_demanda" name="status_demanda" required>
@@ -43,21 +32,26 @@
       <label for="observacoes">Observações:</label>
       <textarea id="observacoes" name="observacoes" placeholder="Motivo da alteração, complementos ou despachos"></textarea>
 
-      <div class="botoes mt-2">
+      <label for="data_movimentacao">Data da Movimentação (opcional):</label>
+      <input type="date" id="data_movimentacao" name="data_movimentacao" />
+
+      <label for="responsavel_movimentacao">Responsável pela Movimentação (opcional):</label>
+      <input type="text" id="responsavel_movimentacao" name="responsavel_movimentacao" placeholder="Nome completo do responsável" />
+
+      <div class="botoes">
         <button class="btn-primary" type="submit">Salvar Alterações</button>
         <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Voltar ao Painel</a>
-        <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
       </div>
     </form>
 
-    <!-- Histórico de movimentações -->
+    <!-- Histórico -->
     <div class="painel-totais mt-2">
       <h2>Histórico de Movimentações</h2>
       {% if historico %}
         <ul>
           {% for mov in historico %}
           <li>
-            <strong>{{ mov.data_movimentacao.strftime('%d/%m/%Y') }}</strong>: 
+            <strong>{{ mov.data_movimentacao.strftime('%d/%m/%Y') }}</strong> — 
             {{ mov.status_movimentado }} por <em>{{ mov.responsavel }}</em><br>
             {% if mov.observacoes %}<small>"{{ mov.observacoes }}"</small>{% endif %}
           </li>
@@ -67,17 +61,10 @@
         <p>Nenhuma movimentação registrada ainda.</p>
       {% endif %}
     </div>
-  </div>
 
-  <!-- Máscara para número do processo -->
-  <script>
-    const numero = document.querySelector(".numero-processo");
-    if (numero) {
-      numero.textContent = numero.textContent.replace(
-        /^(\d{5})(\d{8})\/(\d{4})-(\d{2})$/,
-        "$1-$2/$3-$4"
-      );
-    }
-  </script>
+    <div class="mt-2">
+      <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
+    </div>
+  </main>
 </body>
 </html>
