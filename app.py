@@ -63,20 +63,30 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Obtém o usuário logado
     usuario = Usuario.query.filter_by(id_usuario=session['id_usuario']).first()
 
-    # Contagem de processos
     total_processos = Processo.query.count()
     total_secre = Processo.query.filter_by(tramite_inicial="SECRE").count()
     total_cr = Processo.query.filter_by(tramite_inicial="CR").count()
     total_do = Processo.query.filter_by(diretoria_destino="DO").count()
     total_dc = Processo.query.filter_by(diretoria_destino="DC").count()
     total_sgia = Processo.query.filter(Processo.tipo_demanda.like('%Árvore%')).count()
-    total_improcedentes = Processo.query.filter(Processo.status_demanda.like('%Improcedente%')).count()
-    total_concluidos = Processo.query.filter_by(status_demanda="Concluído").count()
 
-    # Apenas admins verão usuários pendentes
+    # Novos totais com base nos status renomeados
+    total_devolvidos_vistoria = Processo.query.filter(
+        Processo.status_demanda.like('%ausência de vistoria%')
+    ).count()
+
+    total_devolvidos_implantacao = Processo.query.filter(
+        Processo.status_demanda.like('%serviço de implantação%')
+    ).count()
+
+    total_devolvidos_continuado = Processo.query.filter(
+        Processo.status_demanda.like('%serviço de natureza continuada%')
+    ).count()
+
+    total_atendidos = Processo.query.filter_by(status_demanda="Atendido").count()
+
     pendentes = 0
     if usuario.is_admin:
         pendentes = Usuario.query.filter_by(aprovado=False).count()
@@ -88,10 +98,12 @@ def dashboard():
         total_do=total_do,
         total_dc=total_dc,
         total_sgia=total_sgia,
-        total_improcedentes=total_improcedentes,
-        total_concluidos=total_concluidos,
+        total_devolvidos_vistoria=total_devolvidos_vistoria,
+        total_devolvidos_implantacao=total_devolvidos_implantacao,
+        total_devolvidos_continuado=total_devolvidos_continuado,
+        total_atendidos=total_atendidos,
         pendentes=pendentes,
-        usuario_logado=usuario.usuario  # se necessário para mostrar no layout
+        usuario_logado=usuario.usuario
     )
 
 @app.route('/cadastrar_usuario', methods=['GET', 'POST'])
