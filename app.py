@@ -174,7 +174,8 @@ def cadastro_processo():
             vistoria_completa=request.form['vistoria_completa'],
             diretoria_destino=request.form['diretoria_destino'],
             status_demanda=request.form['status_demanda'],
-            descricao_processo=request.form['descricao_processo']
+            descricao_processo=request.form['descricao_processo'],
+            responsavel_cadastro=request.form['responsavel_cadastro'] or session['usuario']
         )
         db.session.add(processo)
 
@@ -182,7 +183,8 @@ def cadastro_processo():
             id_usuario=session['id_usuario'],
             processo=processo,
             status_movimentado=processo.status_demanda,
-            observacoes="Cadastro inicial"
+            observacoes="Cadastro inicial",
+            data_movimentacao=request.form['data_entrada']  # <- importante
         )
         db.session.add(movimentacao)
         db.session.commit()
@@ -200,7 +202,7 @@ def cadastro_processo():
         lista_demandas=demandas,
         lista_status=status
     )
-
+    
 @app.route('/atualizar_processo/<int:id>', methods=['GET', 'POST'])
 @login_required
 def atualizar_processo(id):
