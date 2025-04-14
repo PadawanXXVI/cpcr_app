@@ -202,7 +202,7 @@ def cadastro_processo():
         lista_demandas=demandas,
         lista_status=status
     )
-    
+
 @app.route('/atualizar_processo/<int:id>', methods=['GET', 'POST'])
 @login_required
 def atualizar_processo(id):
@@ -211,16 +211,36 @@ def atualizar_processo(id):
     if request.method == 'POST':
         novo_status = request.form['status_demanda']
         observacoes = request.form['observacoes']
+        data_mov = request.form.get('data_movimentacao')
+        responsavel_custom = request.form.get('responsavel_movimentacao', '').strip()
+
+        # Define a data de movimentação
+        if data_mov:
+            try:
+                data_movimentacao = datetime.strptime(data_mov, '%Y-%m-%d')
+            except ValueError:
+                data_movimentacao = datetime.utcnow()
+        else:
+            data_movimentacao = datetime.utcnow()
+
+        # Nome do responsável (padrão: usuário logado)
+        if responsavel_custom:
+            nome_responsavel = responsavel_custom
+        else:
+            nome_responsavel = Usuario.query.get(session['id_usuario']).nome
 
         processo.status_demanda = novo_status
         processo.data_ultima_atualizacao = datetime.utcnow()
 
-        db.session.add(Movimentacao(
+        nova_movimentacao = Movimentacao(
             id_processo=processo.id_processo,
             id_usuario=session['id_usuario'],
             status_movimentado=novo_status,
-            observacoes=observacoes
-        ))
+            observacoes=observacoes,
+            data_movimentacao=data_movimentacao,
+            responsavel=nome_responsavel
+        )
+        db.session.add(nova_movimentacao)
         db.session.commit()
 
         criar_log(f"Status atualizado para '{novo_status}' | ID Processo: {id}", id_usuario=session['id_usuario'])
