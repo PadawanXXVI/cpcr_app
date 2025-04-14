@@ -200,34 +200,36 @@ def atualizar_processo(id):
     if request.method == 'POST':
         novo_status = request.form['status_demanda']
         observacoes = request.form['observacoes']
-        data_atualizacao_real = request.form.get('data_atualizacao_real')
+        data_real = request.form['data_movimentacao']
+        responsavel_id = request.form['responsavel_movimentacao']
 
         processo.status_demanda = novo_status
         processo.data_ultima_atualizacao = datetime.utcnow()
 
-        db.session.add(Movimentacao(
+        nova_mov = Movimentacao(
             id_processo=processo.id_processo,
-            id_usuario=session['id_usuario'],
+            id_usuario=responsavel_id,
             status_movimentado=novo_status,
             observacoes=observacoes,
-            data_movimentacao=data_atualizacao_real,
-            data_registro=data_atualizacao_real
-        ))
+            data_atualizacao_real=data_real
+        )
+        db.session.add(nova_mov)
         db.session.commit()
 
-        criar_log(f"Status atualizado para '{novo_status}' | ID Processo: {id}", id_usuario=session['id_usuario'])
+        criar_log(f"Processo {processo.numero_processo} atualizado: {novo_status}", id_usuario=responsavel_id)
         return redirect(url_for('atualizar_processo', id=id))
 
     status = [s.nome for s in Status.query.order_by("nome")]
     diretorias = ["DC", "DO"]
-
     historico = Movimentacao.query.filter_by(id_processo=id).order_by(Movimentacao.data_movimentacao.desc()).all()
+    usuarios = Usuario.query.filter_by(ativo=True).order_by(Usuario.nome).all()
 
     return render_template("atualizar_processo.html",
         processo=processo,
         lista_status=status,
         lista_diretorias=diretorias,
-        historico=historico
+        historico=historico,
+        lista_usuarios=usuarios
     )
 
 @app.route('/visualizacao')

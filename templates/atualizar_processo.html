@@ -1,69 +1,74 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Atualizar Processo - Central de Relacionamento</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atualizar Processo - Central de Relacionamento</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
   <main class="card">
     <h1>Atualizar Processo</h1>
 
-    <!-- Informações do processo -->
-    <p><strong>Nº Processo:</strong> <span class="numero-processo">{{ processo.numero_processo }}</span></p>
-    <p><strong>RA de Origem:</strong> {{ processo.admin_regional }}</p>
-    <p><strong>Diretoria de Destino:</strong> {{ processo.diretoria_destino }}</p>
-    <p><strong>Demanda:</strong> {{ processo.tipo_demanda }}</p>
-    <p><strong>Status Atual:</strong> {{ processo.status_demanda }}</p>
+    <form method="POST" action="{{ url_for('atualizar_processo', id=processo.id_processo) }}">
+      <div class="form-group">
+        <label>Número do Processo</label>
+        <input type="text" value="{{ processo.numero_processo }}" disabled />
+      </div>
 
-    <!-- Formulário de atualização -->
-    <form method="POST">
-      <input type="hidden" name="id_processo" value="{{ processo.id_processo }}">
+      <div class="form-group">
+        <label for="status_demanda">Novo Status</label>
+        <select id="status_demanda" name="status_demanda" required>
+          <option value="">Selecione</option>
+          {% for s in lista_status %}
+            <option value="{{ s }}" {% if processo.status_demanda == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-      <label for="status_demanda">Novo Status:</label>
-      <select id="status_demanda" name="status_demanda" required>
-        <option value="">Selecione</option>
-        {% for s in lista_status %}
-          <option value="{{ s }}" {% if processo.status_demanda == s %}selected{% endif %}>{{ s }}</option>
-        {% endfor %}
-      </select>
+      <div class="form-group">
+        <label for="observacoes">Observações</label>
+        <textarea id="observacoes" name="observacoes" placeholder="Detalhe o motivo da atualização" rows="3"></textarea>
+      </div>
 
-      <label for="observacoes">Observações:</label>
-      <textarea id="observacoes" name="observacoes" placeholder="Motivo da alteração, complementos ou despachos"></textarea>
+      <div class="form-group">
+        <label for="responsavel_movimentacao">Responsável pela Atualização</label>
+        <select id="responsavel_movimentacao" name="responsavel_movimentacao" required>
+          <option value="">Selecione</option>
+          {% for usuario in lista_usuarios %}
+            <option value="{{ usuario.id_usuario }}">{{ usuario.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-      <label for="data_movimentacao">Data da Movimentação (opcional):</label>
-      <input type="date" id="data_movimentacao" name="data_movimentacao" />
+      <div class="form-group">
+        <label for="data_movimentacao">Data da Atualização</label>
+        <input type="date" id="data_movimentacao" name="data_movimentacao" required>
+      </div>
 
-      <label for="responsavel_movimentacao">Responsável pela Movimentação (opcional):</label>
-      <input type="text" id="responsavel_movimentacao" name="responsavel_movimentacao" placeholder="Nome completo do responsável" />
-
+      <button type="submit" class="btn-primary">Salvar Alterações</button>
       <div class="botoes">
-        <button class="btn-primary" type="submit">Salvar Alterações</button>
         <a href="{{ url_for('dashboard') }}" class="btn-secondary">← Voltar ao Painel</a>
+        <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
       </div>
     </form>
 
-    <!-- Histórico -->
     <div class="painel-totais mt-2">
       <h2>Histórico de Movimentações</h2>
       {% if historico %}
         <ul>
           {% for mov in historico %}
-          <li>
-            <strong>{{ mov.data_movimentacao.strftime('%d/%m/%Y') }}</strong> — 
-            {{ mov.status_movimentado }} por <em>{{ mov.responsavel }}</em><br>
-            {% if mov.observacoes %}<small>"{{ mov.observacoes }}"</small>{% endif %}
-          </li>
+            <li class="historico-card">
+              <strong>{{ mov.data_movimentacao.strftime('%d/%m/%Y') }}</strong> — {{ mov.status_movimentado }}<br>
+              Por <em>{{ mov.usuario.nome }}</em>
+              {% if mov.data_atualizacao_real %} | Data real: {{ mov.data_atualizacao_real.strftime('%d/%m/%Y') }}{% endif %}
+              {% if mov.observacoes %}<br><small>"{{ mov.observacoes }}"</small>{% endif %}
+            </li>
           {% endfor %}
         </ul>
       {% else %}
-        <p>Nenhuma movimentação registrada ainda.</p>
+        <p>Nenhuma movimentação registrada.</p>
       {% endif %}
-    </div>
-
-    <div class="mt-2">
-      <a href="{{ url_for('logout') }}" class="btn-terciario">Sair do Sistema</a>
     </div>
   </main>
 </body>
