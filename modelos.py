@@ -45,7 +45,7 @@ class Processo(db.Model):
     status_demanda = db.Column(db.String(100), nullable=False)
     descricao_processo = db.Column(db.Text)
     data_ultima_atualizacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    data_entrada_real = db.Column(db.Date)  # ✅ NOVO: data real da entrada
+    data_cadastro = db.Column(db.Date)  # ✅ Data real de cadastro do processo
 
     movimentacoes = db.relationship('Movimentacao', backref='processo', lazy=True)
 
@@ -64,7 +64,7 @@ class Movimentacao(db.Model):
     data_movimentacao = db.Column(db.DateTime, default=datetime.utcnow)
     status_movimentado = db.Column(db.String(100), nullable=False)
     observacoes = db.Column(db.Text)
-    data_atualizacao_real = db.Column(db.Date)  # ✅ NOVO: data real da movimentação
+    data_movimentacao_real = db.Column(db.Date)  # ✅ Data real da movimentação
 
     def __repr__(self):
         return f'<Movimentacao Processo {self.id_processo}>'
