@@ -20,36 +20,41 @@
 
     <div class="cards-dashboard">
 
+      <!-- Linha 1: Total e Atendidos -->
       <div class="card-info">
         <h2>Total de Processos</h2>
         <p>{{ total_processos }}</p>
       </div>
+      <div class="card-info">
+        <h2>Atendidos</h2>
+        <p>{{ total_atendidos }}</p>
+      </div>
 
+      <!-- Linha 2: Início do processo -->
       <div class="card-info">
         <h2>Iniciados pela SECRE</h2>
         <p>{{ total_secre }}</p>
       </div>
-
       <div class="card-info">
         <h2>Iniciados pela CR</h2>
         <p>{{ total_cr }}</p>
       </div>
 
+      <!-- Linha 3: Diretorias -->
+      <div class="card-info">
+        <h2>Diretoria das Cidades (DC)</h2>
+        <p>{{ total_dc }}</p>
+      </div>
       <div class="card-info">
         <h2>Diretoria de Obras (DO)</h2>
         <p>{{ total_do }}</p>
       </div>
 
-      <div class="card-info">
-        <h2>Diretoria das Cidades (DC)</h2>
-        <p>{{ total_dc }}</p>
-      </div>
-
+      <!-- Linha 4: SGIA e devoluções -->
       <div class="card-info">
         <h2>Processos SGIA</h2>
         <p>{{ total_sgia }}</p>
       </div>
-
       <div class="card-info">
         <h2>Devolvidos (Sem vistoria/imagem)</h2>
         <p>{{ total_devolvidos_vistoria }}</p>
@@ -59,15 +64,9 @@
         <h2>Devolvidos (Implantação)</h2>
         <p>{{ total_devolvidos_implantacao }}</p>
       </div>
-
       <div class="card-info">
         <h2>Devolvidos (Serviço contínuo)</h2>
         <p>{{ total_devolvidos_continuado }}</p>
-      </div>
-
-      <div class="card-info">
-        <h2>Atendidos</h2>
-        <p>{{ total_atendidos }}</p>
       </div>
 
     </div>
