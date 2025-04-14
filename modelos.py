@@ -18,7 +18,7 @@ class Usuario(db.Model):
     senha_provisoria = db.Column(db.Boolean, default=False)
     aprovado = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
-    ativo = db.Column(db.Boolean, default=True)  # Novo campo para bloqueio de acesso
+    ativo = db.Column(db.Boolean, default=True)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
 
     movimentacoes = db.relationship('Movimentacao', backref='usuario', lazy=True)
@@ -35,16 +35,17 @@ class Processo(db.Model):
     id_processo = db.Column(db.Integer, primary_key=True)
     numero_processo = db.Column(db.String(25), unique=True, nullable=False)
     data_criacao_ra = db.Column(db.Date, nullable=False)
-    tramite_inicial = db.Column(db.String(10), nullable=False)  # SECRE ou CR
+    tramite_inicial = db.Column(db.String(10), nullable=False)
     data_entrada = db.Column(db.Date, nullable=False)
 
     admin_regional = db.Column(db.String(100), nullable=False)
     tipo_demanda = db.Column(db.String(100), nullable=False)
-    vistoria_completa = db.Column(db.String(10))  # Sim / Não
-    diretoria_destino = db.Column(db.String(10))  # DC / DO
+    vistoria_completa = db.Column(db.String(10))
+    diretoria_destino = db.Column(db.String(10))
     status_demanda = db.Column(db.String(100), nullable=False)
     descricao_processo = db.Column(db.Text)
     data_ultima_atualizacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    data_entrada_real = db.Column(db.Date)  # ✅ NOVO: data real da entrada
 
     movimentacoes = db.relationship('Movimentacao', backref='processo', lazy=True)
 
@@ -63,6 +64,7 @@ class Movimentacao(db.Model):
     data_movimentacao = db.Column(db.DateTime, default=datetime.utcnow)
     status_movimentado = db.Column(db.String(100), nullable=False)
     observacoes = db.Column(db.Text)
+    data_atualizacao_real = db.Column(db.Date)  # ✅ NOVO: data real da movimentação
 
     def __repr__(self):
         return f'<Movimentacao Processo {self.id_processo}>'
