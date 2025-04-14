@@ -25,6 +25,7 @@ with app.app_context():
     db.create_all()
     print("✅ Tabelas criadas com sucesso.")
 
+    # Regiões Administrativas
     if not RegiaoAdministrativa.query.first():
         ras = [
             ("RA I", "Plano Piloto"), ("RA II", "Gama"), ("RA III", "Taguatinga"),
@@ -43,6 +44,7 @@ with app.app_context():
         for cod, nome in ras:
             db.session.add(RegiaoAdministrativa(codigo=cod, nome=nome))
 
+    # Demandas
     if not Demanda.query.first():
         demandas = sorted([
             "Alambrado (Cercamento)",
@@ -53,7 +55,6 @@ with app.app_context():
             "Estacionamentos",
             "Galeria de Água Potável",
             "Galeria de Águas Pluviais",
-            "Implantação (calçada, quadra, praça, estacionamento etc.)",
             "Jardim",
             "Mato Alto",
             "Meio-fio",
@@ -73,6 +74,7 @@ with app.app_context():
         for d in demandas:
             db.session.add(Demanda(nome=d))
 
+    # Status
     if not Status.query.first():
         status = sorted([
             "Atendido",
