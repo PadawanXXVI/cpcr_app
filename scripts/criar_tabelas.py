@@ -75,12 +75,12 @@ with app.app_context():
 
     if not Status.query.first():
         status = sorted([
-            "Concluído",
-            "Devolvido à RA de origem",
+            "Atendido",
+            "Devolvido à RA de origem - ausência de vistoria / fotogeorreferenciada",
+            "Devolvido à RA de origem - serviço de implantação",
+            "Devolvido à RA de origem - serviço de natureza continuada pela diretoria",
             "Enviado à Diretoria das Cidades",
             "Enviado à Diretoria de Obras",
-            "Improcedente - serviço de implantação",
-            "Improcedente - serviço de natureza continuada",
             "Improcedente - tramitação pelo SGIA"
         ])
         for s in status:
