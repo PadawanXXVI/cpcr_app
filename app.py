@@ -71,25 +71,12 @@ def dashboard():
     total_do = Processo.query.filter_by(diretoria_destino="DO").count()
     total_dc = Processo.query.filter_by(diretoria_destino="DC").count()
     total_sgia = Processo.query.filter(Processo.tipo_demanda.like('%Árvore%')).count()
-
-    # Novos totais com base nos status renomeados
-    total_devolvidos_vistoria = Processo.query.filter(
-        Processo.status_demanda.like('%ausência de vistoria%')
-    ).count()
-
-    total_devolvidos_implantacao = Processo.query.filter(
-        Processo.status_demanda.like('%serviço de implantação%')
-    ).count()
-
-    total_devolvidos_continuado = Processo.query.filter(
-        Processo.status_demanda.like('%serviço de natureza continuada%')
-    ).count()
-
+    total_devolvidos_vistoria = Processo.query.filter(Processo.status_demanda.like('%ausência de vistoria%')).count()
+    total_devolvidos_implantacao = Processo.query.filter(Processo.status_demanda.like('%implantação%')).count()
+    total_devolvidos_continuado = Processo.query.filter(Processo.status_demanda.like('%continuada%')).count()
     total_atendidos = Processo.query.filter_by(status_demanda="Atendido").count()
 
-    pendentes = 0
-    if usuario.is_admin:
-        pendentes = Usuario.query.filter_by(aprovado=False).count()
+    pendentes = Usuario.query.filter_by(aprovado=False).count() if usuario.is_admin else 0
 
     return render_template("dashboard.html",
         total_processos=total_processos,
@@ -175,7 +162,7 @@ def cadastro_processo():
             diretoria_destino=request.form['diretoria_destino'],
             status_demanda=request.form['status_demanda'],
             descricao_processo=request.form['descricao_processo'],
-            responsavel_cadastro=request.form['responsavel_cadastro'] or session['usuario']
+            data_entrada_real=request.form['data_entrada_real']
         )
         db.session.add(processo)
 
@@ -184,7 +171,8 @@ def cadastro_processo():
             processo=processo,
             status_movimentado=processo.status_demanda,
             observacoes="Cadastro inicial",
-            data_movimentacao=request.form['data_entrada']  # <- importante
+            data_movimentacao=request.form['data_entrada_real'],
+            data_registro=request.form['data_entrada_real']
         )
         db.session.add(movimentacao)
         db.session.commit()
@@ -211,36 +199,19 @@ def atualizar_processo(id):
     if request.method == 'POST':
         novo_status = request.form['status_demanda']
         observacoes = request.form['observacoes']
-        data_mov = request.form.get('data_movimentacao')
-        responsavel_custom = request.form.get('responsavel_movimentacao', '').strip()
-
-        # Define a data de movimentação
-        if data_mov:
-            try:
-                data_movimentacao = datetime.strptime(data_mov, '%Y-%m-%d')
-            except ValueError:
-                data_movimentacao = datetime.utcnow()
-        else:
-            data_movimentacao = datetime.utcnow()
-
-        # Nome do responsável (padrão: usuário logado)
-        if responsavel_custom:
-            nome_responsavel = responsavel_custom
-        else:
-            nome_responsavel = Usuario.query.get(session['id_usuario']).nome
+        data_atualizacao_real = request.form.get('data_atualizacao_real')
 
         processo.status_demanda = novo_status
         processo.data_ultima_atualizacao = datetime.utcnow()
 
-        nova_movimentacao = Movimentacao(
+        db.session.add(Movimentacao(
             id_processo=processo.id_processo,
             id_usuario=session['id_usuario'],
             status_movimentado=novo_status,
             observacoes=observacoes,
-            data_movimentacao=data_movimentacao,
-            responsavel=nome_responsavel
-        )
-        db.session.add(nova_movimentacao)
+            data_movimentacao=data_atualizacao_real,
+            data_registro=data_atualizacao_real
+        ))
         db.session.commit()
 
         criar_log(f"Status atualizado para '{novo_status}' | ID Processo: {id}", id_usuario=session['id_usuario'])
