@@ -211,7 +211,7 @@ def atualizar_processo(id):
             id_usuario=responsavel_id,
             status_movimentado=novo_status,
             observacoes=observacoes,
-            data_atualizacao_real=data_real
+            data_movimentacao_real=data_real  # ✅ Nome correto agora
         )
         db.session.add(nova_mov)
         db.session.commit()
