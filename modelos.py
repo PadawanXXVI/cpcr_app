@@ -109,8 +109,7 @@ class RegiaoAdministrativa(db.Model):
     __tablename__ = 'regioes_administrativas'
 
     id_ra = db.Column(db.Integer, primary_key=True)
-    codigo = db.Column(db.String(20), nullable=False)
     nome = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
-        return f'<RA {self.codigo} - {self.nome}>'
+        return f'<RA {self.nome}>'
