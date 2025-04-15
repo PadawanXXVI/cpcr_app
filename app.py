@@ -171,7 +171,7 @@ def cadastro_processo():
             processo=processo,
             status_movimentado=processo.status_demanda,
             observacoes="Cadastro inicial",
-            data_atualizacao_real=db.Column(db.Date),
+            data_movimentacao_real=request.form['data_cadastro']
         )
         db.session.add(movimentacao)
         db.session.commit()
