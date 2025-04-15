@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from flask import Flask
 from configuracoes import DevelopmentConfig
-from modelos import db, Usuario, Processo, Movimentacao, LogSistema, Status, Demanda, RegiaoAdministrativa
+from modelos import db, Processo, Movimentacao, LogSistema, Status, Demanda, RegiaoAdministrativa
 from sqlalchemy import text
 
 app = Flask(__name__)
