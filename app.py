@@ -180,7 +180,7 @@ def cadastro_processo():
         flash("✅ Processo cadastrado com sucesso!", "success")
         return redirect(url_for('cadastro_processo'))
 
-    ras = [f"{ra.codigo} - {ra.nome}" for ra in RegiaoAdministrativa.query.order_by("codigo")]
+    ras = [ra.nome for ra in RegiaoAdministrativa.query.order_by("nome")]
     demandas = [d.nome for d in Demanda.query.order_by("nome")]
     status = [s.nome for s in Status.query.order_by("nome")]
     usuarios = Usuario.query.filter_by(ativo=True).order_by(Usuario.nome).all()
@@ -254,7 +254,7 @@ def visualizacao():
 
     processos = query.order_by(Processo.data_entrada.desc()).all()
 
-    ras = [f"{ra.codigo} - {ra.nome}" for ra in RegiaoAdministrativa.query.order_by("codigo")]
+    ras = [ra.nome for ra in RegiaoAdministrativa.query.order_by("nome")]
     demandas = [d.nome for d in Demanda.query.order_by("nome")]
     status = [s.nome for s in Status.query.order_by("nome")]
 
