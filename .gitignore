@@ -39,8 +39,9 @@ desktop.ini
 
 # Arquivos de ambiente e chaves
 .env
+*.env
 
-# Pasta de upload (se houver)
+# Diretórios de upload (caso existam)
 uploads/
 media/
 
@@ -52,3 +53,6 @@ media/
 dist/
 build/
 *.spec
+
+# Cache de notebook e kernel
+.ipynb_checkpoints/
