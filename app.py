@@ -145,12 +145,14 @@ def trocar_senha():
 def cadastro_processo():
     if request.method == 'POST':
         numero = request.form['numero_processo'].strip()
-        existente = Processo.query.filter_by(numero_processo=numero).first()
 
+        # Verifica se o processo já existe
+        existente = Processo.query.filter_by(numero_processo=numero).first()
         if existente:
-            flash("⚠️ Processo já cadastrado. Redirecionando...", "warning")
+            flash("⚠️ Processo já cadastrado. Redirecionando para atualização...", "warning")
             return redirect(url_for('atualizar_processo', id=existente.id_processo))
 
+        # Cria novo processo
         processo = Processo(
             numero_processo=numero,
             data_criacao_ra=request.form['data_criacao_ra'],
@@ -166,6 +168,7 @@ def cadastro_processo():
         )
         db.session.add(processo)
 
+        # Primeira movimentação
         movimentacao = Movimentacao(
             id_usuario=request.form['responsavel_cadastro'],
             processo=processo,
@@ -180,10 +183,11 @@ def cadastro_processo():
         flash("✅ Processo cadastrado com sucesso!", "success")
         return redirect(url_for('cadastro_processo'))
 
+    # Dados para o formulário
     ras = [ra.nome for ra in RegiaoAdministrativa.query.order_by("nome")]
     demandas = [d.nome for d in Demanda.query.order_by("nome")]
     status = [s.nome for s in Status.query.order_by("nome")]
-    usuarios = Usuario.query.filter_by(ativo=True).order_by(Usuario.nome).all()
+    usuarios = Usuario.query.filter_by(ativo=True).order_by(Usuario.usuario).all()
 
     return render_template("cadastro_processo.html",
         lista_ras=ras,
